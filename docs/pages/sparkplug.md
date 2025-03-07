@@ -104,7 +104,6 @@ Example RSMP 3 message:
 ```
 
 Sparkplug/RSMP 4:
-
 ```json
 {
   "timestamp": 1486144502122,
@@ -170,10 +169,6 @@ Example RSMP 3 message:
 
 
 Sparkplug/RSMP 4:
-tc/status/1/cyclecounter
-tc/status/1/signalgroupstatus
-
-
 ```json
 {
   "timestamp": 1486144502122,
@@ -213,7 +208,21 @@ When the signal group status change we would like to provide the precise cycle c
 
 To handle this, we define the signalgroupstatus metric as a hash that includes the cycle counter in milliseconds and the signal groups status. We would send it only when the signal group state changes, not every millisecond. This would be similar to the RMSP 3 idea of marking the cycle_milliseconds as a lean attribute, which is send along when something else changes, but does not itself trigger an update.
 
-We could define commands to turn on/off the signalgroupstatus. When off, it would simply not be send even if changes.
+
+We can define a sub metric that you can send commands to to turn on/off the signalgroupstatus, or set update intervals, etc:
+
+```json
+{
+  "timestamp": 1486144502122,
+  "metrics": [{
+    "name": "tc/tlc/signalgroupstatus/throttle",
+    "timestamp": 1486144502122,
+    "dataType": "Boolean",
+    "value": false
+  }]
+}
+```
+
 
 ## Command
 With sparkplug, commands write to metrics. When succesfull, the device should send data update with the update metric. This works a simple type of command response.
@@ -391,5 +400,4 @@ Questions:
 How are data templates used exactly?
 Is the metric type allowed to change over time?
 How are nulls send?
-
-
+Can intermediate metric names have values? Ie. both fruit and fruit/banana?
