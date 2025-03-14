@@ -1,5 +1,7 @@
 ## Sensor Data
 
+Metrics for retrieving sensor data, either as single events or aggregated over time.
+
 | Metric                                         | Description                          |
 |------------------------------------------------|--------------------------------------|
 | **sensor/tc/1/dl/1/events**                    | Individual detection events          |

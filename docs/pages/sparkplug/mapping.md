@@ -19,6 +19,9 @@ These compoent types are defined:
 
 ## Statuses
 
+### S0001 Signal Group Status
+tlc/tc/1/sl/1    string
+
 ### S0002 Detector logic status
 tlc/tc/1/dl/1    boolean
 

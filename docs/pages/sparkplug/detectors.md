@@ -1,5 +1,7 @@
 ## Detector Logics
 
+Metrics used for detector logics, including status, treshold and forcing.
+
 | Metric                           | Description              |
 |----------------------------------|--------------------------|
 | **tlc/tc/1/dl/1**                | Detector status          |
