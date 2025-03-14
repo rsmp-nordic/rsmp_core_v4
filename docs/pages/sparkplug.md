@@ -108,12 +108,12 @@ Sparkplug/RSMP 4:
 {
   "timestamp": 1486144502122,
   "metrics": [{
-    "name": "tlc/is/1/timeplan",
+    "name": "tlc/tc/1/timeplan",
     "timestamp": 1486144502122,
     "dataType": "Integer",
     "value": 1
   },{
-    "name": "tlc/is/1/timeplan/source",
+    "name": "tlc/tc/1/timeplan/source",
     "timestamp": 1486144502122,
     "dataType": "String",
     "value": "calendar"
@@ -410,63 +410,67 @@ Modules:
 tlc: traffic light control
 traffic: traffic data
 
-Components:
+## Component Types
 tc: traffic controller
-is: intersection
-dl: detecor logic
+sg: signal group
+dl: detector logic
+dh: detector hardware
 in: input
 out: output
 
+
+## Statuses
+
 ### S0002 Detector logic status
-tlc/is/1/dl/1    boolean
+tlc/tc/1/dl/1    boolean
 
 ### S0003 Input status
-tlc/is/1/in/1    string
+tlc/tc/1/in/1    string
 
 ### S0004 Output status
-tlc/is/1/out/1    string
+tlc/tc/1/out/1    string
 
 ### S0005 Traffic Light Controller starting
-tlc/is/1/starting   boolean
+tlc/tc/1/starting   boolean
 
 ### S0006 Emergency Route
-tlc/is/1/emergency_route/1   boolean
+tlc/tc/1/emergency_route/1   boolean
 
 ### S0007 Controller switched on
-tlc/is/1/active           true
-tlc/is/1/active/source    string
+tlc/tc/1/active           true
+tlc/tc/1/active/source    string
 
 ### S0008 Manual Control
-tlc/is/1/manual           true
-tlc/is/1/manual/source    string
+tlc/tc/1/manual           true
+tlc/tc/1/manual/source    string
 
 ### S0009 Fixed Time Control
-tlc/is/1/fixed_time           true
-tlc/is/1/fixed_time/source    string
+tlc/tc/1/fixed_time           true
+tlc/tc/1/fixed_time/source    string
 
 ### S0010 Isolated Mode
-tlc/is/1/isolated           true
-tlc/is/1/isolated/source    string
+tlc/tc/1/isolated           true
+tlc/tc/1/isolated/source    string
 
 ### S0011 Yellow Flash
-tlc/is/1/yellow_flash           true
-tlc/is/1/yellow_flash/source    string
+tlc/tc/1/yellow_flash           true
+tlc/tc/1/yellow_flash/source    string
 
 ### S0012 All Red
-tlc/is/1/all_red           true
-tlc/is/1/all_red/source    string
+tlc/tc/1/all_red           true
+tlc/tc/1/all_red/source    string
 
 ### S0012 Police Key
-tlc/is/1/police_key           true
-tlc/is/1/police_key/source    string
+tlc/tc/1/police_key           true
+tlc/tc/1/police_key/source    string
 
 ### S0014 Time Plan
-tlc/is/1/time_plan           string
-tlc/is/1/time_plan/source    string
+tlc/tc/1/time_plan           string
+tlc/tc/1/time_plan/source    string
 
 ### S0014 Traffic Situation
-tlc/is/1/traffic_situation           string
-tlc/is/1/traffic_situation/source    string
+tlc/tc/1/traffic_situation           string
+tlc/tc/1/traffic_situation/source    string
 
 ### S0016 Number of detector logics
 Not needed.
@@ -475,52 +479,52 @@ Not needed.
 Not needed.
 
 ### S0019 Number of traffic situations
-tlc/is/1/traffic_situation/list      array
+tlc/tc/1/traffic_situation/list      array
 
 ### S0020 Control Mode
 Not needed.
 
 ### S0021 Input Forcing
-tlc/is/1/in/1/force    enum (true, false, release)
+tlc/tc/1/in/1/force    enum (true, false, release)
 
 ### S0022 List of time plans
-tlc/is/1/time_plan/list           array
+tlc/tc/1/time_plan/list           array
 
 ### S0023 Dynamic Bands
-tlc/is/1/time_plan/1/dynamic_band/1     integer
+tlc/tc/1/time_plan/1/dynamic_band/1     integer
 
 ### S0024 Offset
-tlc/is/1/time_plan/1/offset     float
+tlc/tc/1/time_plan/1/offset     float
 
 ### S0025 Time-of-Green / Time-of-Red
-tlc/is/1/sg/1/time_to_green      {min, max, likely, confidence}
-tlc/is/1/sg/1/time_to_red        {min, max, likely, confidence}
+tlc/tc/1/sg/1/time_to_green      {min, max, likely, confidence}
+tlc/tc/1/sg/1/time_to_red        {min, max, likely, confidence}
 
 ### S0026 Week time table
-tlc/is/1/time_plan/schedule/weekdays  {data..}
+tlc/tc/1/time_plan/schedule/weekdays  {data..}
 
 ### S0027 Week time table
-tlc/is/1/time_plan/schedule/hours  {data..}
+tlc/tc/1/time_plan/schedule/hours  {data..}
 
 ### S0028
-tlc/is/1/time_plan/1/cycle_time  integer
+tlc/tc/1/time_plan/1/cycle_time  integer
 
 ### S0029 Forced input status
 Not needed.
 
 ### S0030 Forced output status
-tlc/is/1/out/1/force     enum (true, false, release)
+tlc/tc/1/out/1/force     enum (true, false, release)
 
 ### S0031 Trigger level sensitivity for loop detector
-tlc/is/1/dl/1/treshold      float
+tlc/tc/1/dl/1/treshold      float
 
 ### S0032 Coordinated control
-tlc/is/1/coordinated           true
-tlc/is/1/coordinated/source    string
+tlc/tc/1/coordinated           true
+tlc/tc/1/coordinated/source    string
 
 ### S0033 Signal Priority Request
-tlc/is/1/sg/1/priority                 {data}
-tlc/is/1/sg/1/priority/queue           array
+tlc/tc/1/sg/1/priority                 {data}
+tlc/tc/1/sg/1/priority/queue           array
 
 You send a command and write to /priority.
 If successful, the metric is updated. It's also added to the queue which updates the /priority/queue metric. 
@@ -528,7 +532,7 @@ Once the status of the request changes /priority/queue is updated.
 This means at /priority will always contain the latest request, while /priority/queue contains the current queue.
 
 ### S0034 Timeout for dynamic bands
-tlc/is/1/time_plan/1/dynamic_band/1/timeout     integer
+tlc/tc/1/time_plan/1/dynamic_band/1/timeout     integer
 
 ### S0035 Emergency route
 Not needed.
@@ -553,10 +557,10 @@ tlc/config/download           {data}
 tlc/config/download/on        boolean
 
 ### S0201-S0208 Traffic data
-sensor/is/1/dl/1/events                    {data}     # individual detections    
-sensor/is/1/dl/1/events/throttle           {data}     # control event chunk period
-sensor/is/1/dl/1/aggregated                {data}     # aggregation by time  
-sensor/is/1/dl/1/aggregated/throttle       {data}     # control aggregation period  
+sensor/tc/1/dl/1/events                    {data}     # individual detections    
+sensor/tc/1/dl/1/events/throttle           {data}     # control event chunk period
+sensor/tc/1/dl/1/aggregated                {data}     # aggregation by time  
+sensor/tc/1/dl/1/aggregated/throttle       {data}     # control aggregation period  
 
 events/throttle is used to control how often individual detection events are posted to /events. Events can also
 be turned off.
@@ -569,5 +573,50 @@ Aggregation include e.g. average, minimum and maximum.
 If the device is offline and then comes online again, both events and aggregates can be resend using is_historic.
 
 
+## Alarms
 
+### A0001 Serious hardware error
+tlc/hardware/error
+
+### A0002 Less serious hardware error
+tlc/hardware/warning
+
+### A0003 Serious configuration error
+tlc/config/error
+
+### A0004 Less serious configuration error
+tlc/config/warning  
+
+### A0005 Synchronisation error (coordination)
+tlc/coordination/error
+
+### A0006 Safety error
+tlc/safety/error
+
+### A0007 Communication error
+tlc/network/error
+
+### A0008 Deadlock error
+tlc/deadlock/error
+
+### A0009 Other error
+tlc/error
+
+### A0010 Door open
+tlc/door/alarm
+
+### A0101 Pushbutton error
+tlc/tc/1/sg/1/pushbutton/error
+
+### A0201 Serious lamp error
+tlc/tc/1/sg/1/lamp/error
+
+### A0202 Less serious lamp error
+tlc/tc/1/sg/1/lamp/warning
+
+### A0301 Detector error (hardware)
+tlc/tc/1/dh/1/error
+
+### A0302 Detector error (logic error)
+tlc/tc/1/dl/1/error
 
