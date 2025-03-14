@@ -76,7 +76,7 @@ Presumably, the metric is resend when any part of the data structure changes? Al
 This status is used to send the current time plan, and has these attributes:
 
 status (integer): the time plan
-source (string): who changd to this timeplan (calender, operator, etc)
+source (string): who changd to this program (calender, operator, etc)
 
 Example RSMP 3 message:
 
@@ -108,12 +108,12 @@ Sparkplug/RSMP 4:
 {
   "timestamp": 1486144502122,
   "metrics": [{
-    "name": "tlc/tc/1/timeplan",
+    "name": "tlc/tc/1/program",
     "timestamp": 1486144502122,
     "dataType": "Integer",
     "value": 1
   },{
-    "name": "tlc/tc/1/timeplan/source",
+    "name": "tlc/tc/1/program/source",
     "timestamp": 1486144502122,
     "dataType": "String",
     "value": "calendar"
@@ -254,7 +254,7 @@ RSMP 3 example:
              "v":"0000"
      },{
              "cCI":"M0002",
-             "n":"timeplan",
+             "n":"program",
              "cO":"setPlan",
              "v":"1"
      }]
@@ -267,7 +267,7 @@ Sparkplug/RSMP 4:
 {
   "timestamp": 1486144502122,
   "metrics": [{
-    "name": "tc/tlc/timeplan",
+    "name": "tc/tlc/program",
     "timestamp": 1486144502122,
     "dataType": "Integer",
     "value": 2
@@ -276,9 +276,9 @@ Sparkplug/RSMP 4:
 ```
 
 Note that you write to the same metric that report the current time plan (S0014)
-So intead organizing by status and commands, we actually organizing around states (e.g timeplan) and you can read it (status) and set it (command).
+So intead organizing by status and commands, we actually organizing around states (e.g program) and you can read it (status) and set it (command).
 
-If the timeplan was succesfully changed a data update will be send back reporting the plan number in tc/tlc/timeplan, and the source in tc/tlc/timeplan/source.
+If the program was succesfully changed a data update will be send back reporting the plan number in tc/tlc/program, and the source in tc/tlc/program/source.
 
 Progress and errors will be reported with:
 
@@ -286,7 +286,7 @@ Progress and errors will be reported with:
 {
   "timestamp": 1486144502122,
   "metrics": [{
-    "name": "tc/tlc/timeplan/response",
+    "name": "tc/tlc/program/response",
     "timestamp": 1486144502122,
     "dataType": "Template",
     "value": {
@@ -301,7 +301,7 @@ Progress and errors will be reported with:
 {
   "timestamp": 1486144502122,
   "metrics": [{
-    "name": "tc/tlc/timeplan/response",
+    "name": "tc/tlc/program/response",
     "timestamp": 1486144502122,
     "dataType": "Template",
     "value": {
@@ -316,7 +316,7 @@ Progress and errors will be reported with:
 {
   "timestamp": 1486144502122,
   "metrics": [{
-    "name": "tc/tlc/timeplan/response",
+    "name": "tc/tlc/program/response",
     "timestamp": 1486144502122,
     "dataType": "Template",
     "value": {
@@ -356,7 +356,7 @@ RSMP 3:
      "cat":"D",
      "pri":"2",
      "rvs":[{
-             "n":"timeplan",
+             "n":"program",
              "v":"9"
      }]
 }
@@ -367,7 +367,7 @@ Sparkplug/RSMP 4:
 {
   "timestamp": 1486144502122,
   "metrics": [{
-    "name": "tc/tlc/timeplan/alarm",
+    "name": "tc/tlc/program/alarm",
     "timestamp": 1486144502122,
     "dataType": "Template",
     "value": {
@@ -384,7 +384,7 @@ When the alarm becomes inactive:
 {
   "timestamp": 1486144502122,
   "metrics": [{
-    "name": "tc/tlc/timeplan/alarm",
+    "name": "tc/tlc/program/alarm",
     "timestamp": 1486144502122,
     "dataType": "Template",
     "value": {
@@ -465,8 +465,8 @@ tlc/tc/1/police_key           true
 tlc/tc/1/police_key/source    string
 
 ### S0014 Time Plan
-tlc/tc/1/time_plan           string
-tlc/tc/1/time_plan/source    string
+tlc/tc/1/program           string
+tlc/tc/1/program/source    string
 
 ### S0014 Traffic Situation
 tlc/tc/1/traffic_situation           string
@@ -488,26 +488,26 @@ Not needed.
 tlc/tc/1/in/1/force    enum (true, false, release)
 
 ### S0022 List of time plans
-tlc/tc/1/time_plan/list           array
+tlc/tc/1/program/list           array
 
 ### S0023 Dynamic Bands
-tlc/tc/1/time_plan/1/dynamic_band/1     integer
+tlc/tc/1/program/1/band/1     integer
 
 ### S0024 Offset
-tlc/tc/1/time_plan/1/offset     float
+tlc/tc/1/program/1/offset     float
 
 ### S0025 Time-of-Green / Time-of-Red
 tlc/tc/1/sg/1/time_to_green      {min, max, likely, confidence}
 tlc/tc/1/sg/1/time_to_red        {min, max, likely, confidence}
 
 ### S0026 Week time table
-tlc/tc/1/time_plan/schedule/weekdays  {data..}
+tlc/tc/1/program/schedule/weekdays  {data..}
 
 ### S0027 Week time table
-tlc/tc/1/time_plan/schedule/hours  {data..}
+tlc/tc/1/program/schedule/hours  {data..}
 
 ### S0028
-tlc/tc/1/time_plan/1/cycle_time  integer
+tlc/tc/1/program/1/cycle_time  integer
 
 ### S0029 Forced input status
 Not needed.
@@ -532,7 +532,7 @@ Once the status of the request changes /priority/queue is updated.
 This means at /priority will always contain the latest request, while /priority/queue contains the current queue.
 
 ### S0034 Timeout for dynamic bands
-tlc/tc/1/time_plan/1/dynamic_band/1/timeout     integer
+tlc/tc/1/program/1/band/1/timeout     integer
 
 ### S0035 Emergency route
 Not needed.
@@ -620,3 +620,77 @@ tlc/tc/1/dh/1/error
 ### A0302 Detector error (logic error)
 tlc/tc/1/dl/1/error
 
+
+## Commands
+
+### M0001 Sets functional position
+tlc/tc/1/functional_position     string
+
+### M0002 Sets current time plan
+tlc/tc/1/program     integer
+
+### M0003 Sets traffic situation the controller uses
+tlc/tc/1/traffic_situation     integer
+
+### M0004 Restarts Traffic Light Controller
+tlc/tc/1/starting     boolean
+
+### M0005 Activate emergency route
+tlc/tc/1/emergency_route     boolean
+
+### M0006 Activate input
+tlc/tc/1/input/1     boolean
+
+### M0007 Activate fixed time control
+tlc/tc/1/fixed_time     boolean
+
+### M0008 Sets manual activation of detector logic
+tlc/tc/1/dl/1/force     boolean
+
+### M0010 Signal group setStart (Reserved)
+Not used.
+
+### M0011 Signal group setStop (Reserved)
+Not used.
+
+### M0012 Traffic Light Controller setStart (Reserved)
+Not used.
+
+### M0013 Activate a series of inputs
+Not needed
+
+### M0014 Set dynamic bands
+tlc/tc/1/program/1/bands     {data}
+
+### M0015 Set Offset time
+tlc/tc/1/program/1/offset     float
+
+### M0016 Set week time table
+tlc/tc/1/program/schedule/weekdays     {data}
+
+### M0017 Set time tables
+tlc/tc/1/program/schedule/hours     {data}
+
+### M0018 Set Cycle time
+tlc/tc/1/program/1/band     float
+
+### M0019 Force input
+tlc/tc/1/in/1/force     enum (true, false, release)
+
+### M0020 Force output
+tlc/tc/1/out/1/force     enum (true, false, release)
+
+### M0021 Set trigger level sensitivity for loop detector
+tlc/tc/1/dl/1/treshold     float
+
+### M0022 Request Signal Priority
+tlc/tc/1/sg/1/priority                 {data}
+
+### M0023 Set timeout for dynamic bands
+tlc/tc/1/program/1/band/1/timeout     integer
+
+### M0103 Set security code
+sys/security_code     string
+
+### M0104 Set clock
+sys/clock     string
