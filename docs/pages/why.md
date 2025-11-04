@@ -11,6 +11,28 @@ This document summarises what RSMP 4 is, why it is needed, and the concrete bene
 - An evolution of the RSMP family (building on lessons from RSMP 3) with an emphasis on scalability, security, and easier integration between vendors and authorities.
 - The specification is developed and coordinated by RSMP Nordic; details and draft work are tracked in the project repository and related documentation (see links at the end).
 
+## Needs and Challenge of Road Authorities
+### Needs
+Purchase: An open market
+Maintenance: maintaining road side euqipment and systems
+Use: traffic management, traffic light programming, etc.
+Security:
+Data and Integration: 
+
+### Challanges
+General:
+Fragmented marked with dominant suppliers leading to lock-in.
+Many countries have their own ways of doing things, reinventing the wheel.
+Lack of European standards for road side protocols
+
+RSMP 3:
+RSMP 3 implenmations are not always completely interoperable - hard to get the transport mechanism right.
+Performance issues due to buffered messages.
+Architectures with separate supervisors, e.g for buspriority. Possible, but not easy enough with RSMP 3.
+Traffic light programming still relies on vendor-specific tools.
+
+
+
 ## Why RSMP 4 is needed
 - Legacy integration complexity: Many traffic control projects today rely on bespoke or older protocols that are costly and slow to integrate across multiple vendors and jurisdictions.
 - Cloud and IoT shift: Traffic management solutions increasingly use cloud services, edge devices and IoT sensors. A messaging-first core (MQTT-based) better supports these architectures.
