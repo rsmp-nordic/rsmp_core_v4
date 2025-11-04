@@ -1,7 +1,7 @@
 # The Case for RSMP 4
 
 ## Summary
-RSMP 4 is the next-generation core specification for RSMP (Road Side Message Protocol). Built on a modern messaging backbone (the RSMP 4 draft is being developed on top of MQTT), RSMP 4 modernises how traffic management systems, field equipment and vendors communicate. Work on the draft is mandated by the RSMP Steering Group and is available as an online draft: https://rsmp-nordic.github.io/rsmp_core_v4/.
+RSMP 4 is the next-generation core specification for RSMP (Road Side Message Protocol). Built on a modern messaging backbone build on on top of MQTT, RSMP 4 modernises how traffic management systems, field equipment and vendors communicate. Work on the draft is mandated by the RSMP Steering Group and is available as an online draft: https://rsmp-nordic.github.io/rsmp_core_v4/.
 
 This document summarises what RSMP 4 is, why it is needed, and the concrete benefits it delivers to road authorities across Europe.
 
