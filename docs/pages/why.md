@@ -22,16 +22,15 @@ Data and Integration:
 ### Challanges
 General:
 Fragmented marked with dominant suppliers leading to lock-in.
-Many countries have their own ways of doing things, reinventing the wheel.
-Lack of European standards for road side protocols
+Many countries have their own ways of doing things, reinventing the wheel and wasting resources.
+Lack of European standards for road side protocols.
+Difficult to follow best-practices for cybersecurity, e.g. encryption, TSL certificates and over-the-air updates.
 
 RSMP 3:
 RSMP 3 implenmations are not always completely interoperable - hard to get the transport mechanism right.
 Performance issues due to buffered messages.
 Architectures with separate supervisors, e.g for buspriority. Possible, but not easy enough with RSMP 3.
 Traffic light programming still relies on vendor-specific tools.
-
-
 
 ## Why RSMP 4 is needed
 - Legacy integration complexity: Many traffic control projects today rely on bespoke or older protocols that are costly and slow to integrate across multiple vendors and jurisdictions.
