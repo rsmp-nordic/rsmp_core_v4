@@ -23,16 +23,38 @@ The architecture makes it possible for clients to communicate with all other cli
 There is no inherent idea of a site vs. supervisor side in MQTT, it's all just clients connecting to the broker. In RSMP 4 clients are known as _nodes_.
 
 ## Topic Paths
-MQTT uses topic paths as a fundemental concept. A topic path is string using forward slashes as delimiters, for example:
+MQTT uses topic paths as a fundemental concept. A topic path is string using forward slashes as delimiters.
 
-`status/tlc/1/83fa`
+RSMP 4 uses a **Device-Centric** topic layout:
 
-A message is published to a particular toppic path.
+`<../../node>/type/code[/<component>]`
 
-Topic paths are used to subscribe to specific messages. You can use two types of wildcards when subscribing:
+### Sections
 
-"+" (plus sign) is used to match a single level in the hierarchy. For example, a client could subscribe to `status/tlc/1/+` to get status messages from any client.
+| Section | Description | Format | Example |
+| :--- | :--- | :--- | :--- |
+| **Node ID** | Unique Device Identifier including optional hierarchy prefix. | [../../]node | `dk/cph/tlc-001` |
+| **Type** | Protocol Keyword / Parsing Anchor. | Fixed Enum | `command`, `status`, `alarm`, `presence` |
+| **Code** | Message Code (from SXL). Flattened to avoid ambiguity. | Dotted String | `tlc.plan.set` (derived from `tlc/plan/set`) |
+| **Component** | Logic resource path. | Slashed String | `sg/1` |
 
-"#" (hash sign) is used to match multiple levels in the hierarchy. For example, a client could subscribe to `status/#` to subscribe to any status messages.
+The node id can consist of 1 or more levels, e.g. `af5g`, `zone1/tlc-001` or `dk/cph/tlc-001`. Using the same number of levels for all devices in a setup is recommended, but not required. 
 
-RSMP 4 defines a specific set of topic paths for commands, statuses, alarms, etc.
+### Examples
+
+`dk/cph/tlc-001/command/tlc.plan.set`
+`dk/cph/tlc-001/status/tlc.plan.status`
+
+### Wildcards
+
+"#" (hash sign) is used to match multiple levels in the hierarchy.
+
+This layout allows easy subscription to all messages for a specific device or area:
+
+- All messages for a specific device: `dk/cph/tlc-001/#`
+- All messages for a region: `dk/cph/#`
+
+"\\+" (plus sign) is used to match a single level in the hierarchy.
+
+- All status messages for a device: `dk/cph/tlc-001/status/#`
+

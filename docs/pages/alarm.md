@@ -7,23 +7,24 @@ permalink: /messages/alarm/
 
 # Alarm
 ```
-alarm/<module>/<code>/<sender>[/<component>]
-````
+<node>/alarm/<code>[/<component>]
+```
 
 Examples:
 ```
-alarm/tlc/1/45fe   # A0001 serious hardware error (for main component) on node 45fe
-alarm/tlc/301/45fe/dl.7   # A0301 serious deteector error for component dl.7 on node 45fe
+dk/cph/45fe/alarm/tlc.1           # A0001 serious hardware error (for main component) on node 45fe
+dk/cph/45fe/alarm/tlc.301/dl/7    # A0301 serious detector error for component dl.7 on node 45fe
 ```
 
 For example, a traffic light `bb35` that has a hardware error in detector logic 4 might publish to:
-`alarm/tlc/1/bb35/dl/4`
+`dk/cph/bb35/alarm/tlc.1/dl/4`
 
 
 ## Subscribing
-Supervisors can subscribe to all alarm from all devices using:
-`alarm/#`
+Supervisors can subscribe to all alarms from a specific device:
+`dk/cph/45fe/alarm/#`
 
-Or if you only want alarms from a certain module:
-`alarm/sensor/#`
+Or all alarms within a region (assuming fixed prefix depth):
+`dk/cph/+/alarm/#`
+
 
