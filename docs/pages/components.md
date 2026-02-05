@@ -9,7 +9,7 @@ A node has one or more components, representing physical of logical elements.
 
 Components are referenced using component ids, which must be unique per node.
 
-A component id consists of one or more levels, separated by dots. For example, a traffic light controller (tc) with two signal groups (sg) and four detector logics (dl) might have these component ids:
+A component id consists of one or more levels, separated by slashes. For example, a traffic light controller (tc) with two signal groups (sg) and four detector logics (dl) might have these component ids:
 
 ```
 tc
@@ -77,18 +77,18 @@ Whitespace is not allowed before or after commas and hyphens.
 Component ids are used in topic paths, for example:
 
 ```
-alarm/tlc/301/45fe/dl/6         # A0301 error for component dl.6 on node 45fe
-comamand/sensor/17/45fe/sg/1   # Command M0017 to sigmal group 1 on node 45fe
+dk/cph/45fe/alarm/tlc.301/dl/6         # A0301 error for component dl.6 on node 45fe
+dk/cph/45fe/command/sensor.17/sg/1     # Command M0017 to signal group 1 on node 45fe
 ```
 
 RSMP 4 is based on MQTT which allow the last payload published to each topic path to be retained.
 In the example above, this means that the alarms for `dl/6` and `dl/7` will be retained.
-A node subscribing to these topics, or reconnecting afer a network dropout, will then receive the latest alarm for each component.
+A node subscribing to these topics, or reconnecting after a network dropout, will then receive the latest alarm for each component.
 This is useful to make sure that a newly connected node will receive the latest status immediately.
 
-To ensure that the latests status for each componnent can be retained, groups or lists or components should not be used when sending alarms or statuses. Instead an status/alarm should be published for each component, using their individual component paths.
+To ensure that the latest status for each component can be retained, groups or lists or components should not be used when sending alarms or statuses. Instead a status/alarm should be published for each component, using their individual component paths.
 
-On the other hand, commands can use component groups or lists, because commands should not be retained. Instead QoS (Quality of Service) 1 or 2 should be used when sending commands to guarantee delivery. If the receiver is offline, the messages will be kept on the broke. When the receiver comes online again, they will be delivered. Since commands are not retained, newly connected nodes will not received previously send commands.
+On the other hand, commands can use component groups or lists, because commands should not be retained. Instead QoS (Quality of Service) 1 or 2 should be used when sending commands to guarantee delivery. If the receiver is offline, the messages will be kept on the broker. When the receiver comes online again, they will be delivered. Since commands are not retained, newly connected nodes will not received previously send commands.
 
 ## Main component
 Exactly one root level component must be configured as the main component for each node. This component is used to refer to the device as a whole.
@@ -100,16 +100,16 @@ sg/2
 dl
 ```
 
-You can refer to the main component by using use an empty component path or by leaving out it out. For exapmple. assuming the componennt `tc` is configured as the main component, these two command achieve the same:
+You can refer to the main component by using the component ID explicitly, or by omitting the component ID from the topic path. For example, assuming the component `tc` is configured as the main component, these two commands achieve the same:
 
 ```
-comamand/tlc/2/45fe/tc          # Send command to component tc
-comamand/tlc/2/45fe             # Shorthand to send command to the main component
+dk/cph/45fe/command/tlc.2/tc          # Send command to component tc
+dk/cph/45fe/command/tlc.2             # Shorthand to send command to the main component
 ```
 
 The shorthand means you can address the main component without knowing its component id. This can be important when you want to inspect a new or unknown device where you don't know the id of the main component.
 
-## Example: Traffic Light Contoller
+## Example: Traffic Light Controller
 A traffic light controller managing a single intersection has a traffic controller component, representing the device as a whole, here called `tc`:
 
 ```
@@ -133,6 +133,6 @@ in/2/sg/1  # signal group
 in/2/sg/2  # signal group
 ```
 
-With nesting, component ids for signal groups are slighlty longer (e.g. `in.1.sg.1` vs `sg.1`), but on the other hand it's easy to see which intersection a signal gorup belongs to, you can reuse the same signal group names in several intersections and you have the possibility to easily address all signal groups in an intersection (e.g. `in.1.sg`).
+With nesting, component ids for signal groups are slightly longer (e.g. `in/1/sg/1` vs `sg/1`), but on the other hand it's easy to see which intersection a signal group belongs to, you can reuse the same signal group names in several intersections and you have the possibility to easily address all signal groups in an intersection (e.g. `in/1/sg`).
 
 

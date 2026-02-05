@@ -7,33 +7,29 @@ permalink: /messages/command/
 
 ## Command
 ```
-command/<module>/<code>/<receiver>[/<component>]
-````
+<node_id>/command/<code>[/<component>]
+```
 
 Examples:
 ```
-comamand/tlc/2/45fe             # M0002 set signal plan status (for main component) on node 45fe
-comamand/traffic/17/45fe/sg.1   # hyopthetical M0017 set detector treshold for sigmal group 1 on node 45fe
+dk/cph/45fe/command/tlc.2                     # M0002 set signal plan status (for main component) on node 45fe
+dk/cph/45fe/command/traffic.17/sg/1           # hypothetical M0017 set detector threshold for signal group 1 on node 45fe
 ```
 
 
 All devices subscribe to a command topic that includes their id, which the supervisor can publish to. 
 
-Device subscribe to  `command/<id>/<component>/<module>/<cmd>`
+Device subscribe to  `<node_id>/command/<code>[/<component>]`
 
-id: the id of the device itself
-module: the sxl module (category of command)
-cmd: the command
+node_id: the id of the device itself (incl. hierarchy)
+code: the command code (flattened)
 
 The payload contains the parameters in JSON format.
 
-For example, a traffic light with id 45fe might subscribe to all command for all components using either single level wildcards with:
-`command/45fe/+/+/+` 
+For example, a traffic light with id 45fe might subscribe to all commands for all components using:
+`dk/cph/45fe/command/#`
 
-Or using a multi-level wildcard:
-`command/45fe/#`
-
-Now the supervisor can send commands to this particular traffic light and component by publishing to `command/45ef/<component>/...`
+Now the supervisor can send commands to this particular traffic light and component by publishing to `dk/cph/45fe/command/...`
 
 Suppose the traffic light has these components:
 
@@ -49,43 +45,32 @@ And let's suppose the traffic light supports these modules:
 
 
 ### Change signal plan
-`command/45fe/main/tlc/plan`
+`dk/cph/45fe/command/tlc.plan`
 
-We send the command to the `main` component.
-We use `plan` command in the `tlc` module.
+We send the command to the `main` component (by omitting the component part).
+We use `plan` command in the `tlc` module (code `tlc.plan`).
 
 The payload would include the arguments, like what plan to switch to.
 
 ### Set detector sensibility
-`command/45fe/dl1/detector/sensibility`
+`dk/cph/45fe/command/detector.sensibility/dl1`
 
 We send the command to the `dl1` component.
-We use `sensibility` command in the `detector` module.
+We use `sensibility` command in the `detector` module (code `detector.sensibility`).
 
 The payload would include the arguments, like the sensibility value.
 
 ### Sending to many devices
-A traffic light with id 45fe could subscribe to a topic with the id 'all':
-`command/all/#`
-
-Or a bit more selectively:
-`command/all/main/tlc/+` 
-`command/all/+/detector/+` 
+A traffic light with id 45fe could subscribe to a topic with the id 'all' (if supported by project governance):
+`dk/cph/all/command/#`
 
 The supervisor can publish to this topic to e.g. change the signal plan on all traffic lights at the same:
-`command/all/main/tlc/plan`
-
-Or change the detector sensibility on all detector logics in a particular traffic lights:
-`command/45fe/all/detector/plan`
-
-Or change the detector sensibility on all detector logics in all traffic lights:
-`command/all/all/detector/sensibility`
-
+`dk/cph/all/command/tlc.plan`
 
 ## Result
 How would command results be handled? We would use the request-result pattern, which is based on Result Topics. When you send a command, you pass a topic that would want to result to be published to. A supervisor sending a command could pass the result topic:
-`result/<supervisor_id>/component/module/command`.
+`<supervisor_id>/result/<code>[/<component>]`.
 
-When a supervisor with id 22ba changing plan with `command/45fe/main/tlc/plan`, the respons would be send to `result/22ba/main/tlc/plan`.
+When a supervisor with id 22ba changing plan with `dk/cph/45fe/command/tlc.plan`, the response would be send to `dk/cph/22ba/result/tlc.plan`.
 
-All supervisor can receive result if the just subscribe to `result/+/main/tlc/plan`.
+All supervisor can receive result if the just subscribe to `dk/cph/+/result/tlc.plan`.

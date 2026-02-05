@@ -7,11 +7,11 @@ permalink: /messages/status/
 
 ## Status
 ```
-status/<module>/<code>/<sender>[/<component>]
-````
+<node>/status/<code>[/<component>]
+```
 
 Examples:
 ```
-status/tlc/14/45fe        # S0014 current signal plan for the main component on node 45fe
-status/tlc/25/45fe/sg/1   # S0025 time-of-green for signal group 1 on node 45fe
+dk/cph/45fe/status/tlc.14        # S0014 current signal plan for the main component on node 45fe
+dk/cph/45fe/status/tlc.25/sg/1   # S0025 time-of-green for signal group 1 on node 45fe
 ```

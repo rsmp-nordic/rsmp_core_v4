@@ -12,29 +12,28 @@ RSMP 4 defines the following messages with coresponding topic paths structures:
 
 | Message type | Topic path |
 |-|-|
-| [Presence](presence.md) | `presence/<sender>` |
-| [Status](status.md) | `status/<module>/<code>/<sender>/<component>` |
-| [Command](command.md) | `command/<module>/<code>/<receiver>/<component>` |
-| [Result](result.md) | `result/<module>/<code>/<sender>/<component>` |
-| [Alarm](alarm.md) | `alarm/<module>/<code>/<sender>/<component>` |
-| [Reaction](reaction.md) | `reaction/<module>/<code>/<receiver>/<component>` |
+| [Presence](presence.md) | `<node>/presence` |
+| [Status](status.md) | `<node>/status/<code>[/<component>]` |
+| [Command](command.md) | `<node>/command/<code>[/<component>]` |
+| [Result](result.md) | `<node>/result/<code>[/<component>]` |
+| [Alarm](alarm.md) | `<node>/alarm/<code>[/<component>]` |
+| [Reaction](reaction.md) | `<node>/reaction/<code>[/<component>]` |
 
 
 All these topic paths (except presence) follow this layout:
 
 ```
-<type>/<module>/<code>/<node>[/<component>]
+<node>/<type>/<code>[/<component>]
 ```
 
-- type: the type of message, either presence, statuss, command, resposne, alarm or reaction.
-- module: the name of the module.
-- code: the code of command/status/alarm within the module.
-- node: the id of the sender or receiver, depending on the message type.
+- node: The unique identity of the RSMP node, including optional hierarchy prefix.
+- type: the type of message, e.g. status, command, alarm.
+- code: the code of command/status/alarm within the module (flattened).
 - component: indentifies one or more [components](components.md).
 
-The component can be left out as a shortcut to refer to the main component.
+The component is kept at the end of the topic path to ensure that you can retain status, commands and alarms for each component and easily subscribe to sub-trees.
 
-The component is includes as part of the topic path (except for presence messages) to ensure that you can retain status, commands an alarms for each component.
+The component can be left out as a shortcut to refer to the main component.
 
 ## Payload CBOR Encoding
 Message payloads consist of JSON encoded in binary format using [CBOR (Concise Binary Object Representation)](https://cbor.io).
