@@ -9,7 +9,7 @@ Status updates are delivered via _streams_.
 
 A stream defines how status updates are delived, including:
 
-- module and code, e.g. tlc/2
+- module and code, e.g. tlc.plan
 - attributes and their settings, e.g. live or update rate
 - aggregation, e.g. sum or average
 - default state (on/off)
@@ -62,7 +62,7 @@ Consumers will no longer receive data, even if they are still subscribed to the 
 
 ## Stream configuration
 ### Module and id
-Identifies the status with module name, and status code id, e.g. `tlc/2`.
+Identifies the status with module name, and status code id, e.g. `tlc.plan`.
 
 ### Attributes
 The set of attributes to include in status updates, and their settings. For each attribute:

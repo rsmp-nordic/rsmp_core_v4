@@ -12,7 +12,7 @@ permalink: /messages/command/
 
 Examples:
 ```
-dk/cph/45fe/command/tlc.2                     # M0002 set signal plan status (for main component) on node 45fe
+dk/cph/45fe/command/tlc.plan.set              # set signal plan (for main component) on node 45fe
 dk/cph/45fe/command/traffic.17/sg/1           # hypothetical M0017 set detector threshold for signal group 1 on node 45fe
 ```
 
@@ -45,10 +45,10 @@ And let's suppose the traffic light supports these modules:
 
 
 ### Change signal plan
-`dk/cph/45fe/command/tlc.plan`
+`dk/cph/45fe/command/tlc.plan.set`
 
 We send the command to the `main` component (by omitting the component part).
-We use `plan` command in the `tlc` module (code `tlc.plan`).
+We use `plan.set` command in the `tlc` module (code `tlc.plan.set`).
 
 The payload would include the arguments, like what plan to switch to.
 
@@ -65,12 +65,12 @@ A traffic light with id 45fe could subscribe to a topic with the id 'all' (if su
 `dk/cph/all/command/#`
 
 The supervisor can publish to this topic to e.g. change the signal plan on all traffic lights at the same:
-`dk/cph/all/command/tlc.plan`
+`dk/cph/all/command/tlc.plan.set`
 
 ## Result
 How would command results be handled? We would use the request-result pattern, which is based on Result Topics. When you send a command, you pass a topic that would want to result to be published to. A supervisor sending a command could pass the result topic:
 `<supervisor_id>/result/<code>[/<component>]`.
 
-When a supervisor with id 22ba changing plan with `dk/cph/45fe/command/tlc.plan`, the response would be send to `dk/cph/22ba/result/tlc.plan`.
+When a supervisor with id 22ba changing plan with `dk/cph/45fe/command/tlc.plan.set`, the response would be send to `dk/cph/22ba/result/tlc.plan.set`.
 
-All supervisor can receive result if the just subscribe to `dk/cph/+/result/tlc.plan`.
+All supervisor can receive result if the just subscribe to `dk/cph/+/result/tlc.plan.set`.

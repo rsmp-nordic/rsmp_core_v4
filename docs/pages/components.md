@@ -103,8 +103,8 @@ dl
 You can refer to the main component by using the component ID explicitly, or by omitting the component ID from the topic path. For example, assuming the component `tc` is configured as the main component, these two commands achieve the same:
 
 ```
-dk/cph/45fe/command/tlc.2/tc          # Send command to component tc
-dk/cph/45fe/command/tlc.2             # Shorthand to send command to the main component
+dk/cph/45fe/command/tlc.plan.set/tc   # Send command to component tc
+dk/cph/45fe/command/tlc.plan.set      # Shorthand to send command to the main component
 ```
 
 The shorthand means you can address the main component without knowing its component id. This can be important when you want to inspect a new or unknown device where you don't know the id of the main component.
