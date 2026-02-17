@@ -7,11 +7,20 @@ permalink: /messages/status/
 
 ## Status
 ```
-<node>/status/<code>[/<component>]
+<node>/status/<code>[/<stream>][/<component>]
+```
+
+When a status has only a single stream and no component segments, the stream
+name may be omitted:
+
+```
+<node>/status/<code>
 ```
 
 Examples:
 ```
-dk/cph/45fe/status/tlc.14        # S0014 current signal plan for the main component on node 45fe
-dk/cph/45fe/status/tlc.25/sg/1   # S0025 time-of-green for signal group 1 on node 45fe
+dk/cph/45fe/status/tlc.groups/live       # live stream of signal group status
+dk/cph/45fe/status/tlc.groups/hourly     # hourly aggregated signal group status
+dk/cph/45fe/status/tlc.plan              # current plan (single stream, name omitted)
+dk/cph/45fe/status/traffic.count/hourly/dl/1  # hourly traffic data for detector logic 1
 ```
