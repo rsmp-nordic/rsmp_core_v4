@@ -19,8 +19,8 @@ name may be omitted:
 
 Examples:
 ```
-dk/cph/45fe/status/tlc.groups/live       # live stream of signal group status
-dk/cph/45fe/status/tlc.groups/hourly     # hourly aggregated signal group status
-dk/cph/45fe/status/tlc.plan              # current plan (single stream, name omitted)
-dk/cph/45fe/status/traffic.count/hourly/dl/1  # hourly traffic data for detector logic 1
+45fe/status/tlc.groups/live       # live stream of signal group status
+45fe/status/tlc.groups/hourly     # hourly aggregated signal group status
+45fe/status/tlc.plan              # current plan (single stream, name omitted)
+45fe/status/traffic.count/hourly/dl/1  # hourly traffic data for detector logic 1
 ```

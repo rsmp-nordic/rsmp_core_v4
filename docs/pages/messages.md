@@ -19,7 +19,6 @@ RSMP 4 defines the following messages with coresponding topic paths structures:
 | [Command](command.md) | `<node>/command/<code>[/<component>]` |
 | [Result](result.md) | `<node>/result/<code>[/<component>]` |
 | [Alarm](alarm.md) | `<node>/alarm/<code>[/<component>]` |
-| [Reaction](reaction.md) | `<node>/reaction/<code>[/<component>]` |
 
 
 Most topic paths (except presence and stream state) follow this layout:

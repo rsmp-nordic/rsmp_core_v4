@@ -33,7 +33,7 @@ RSMP 4 uses a **Device-Centric** topic layout:
 
 | Section | Description | Format | Example |
 | :--- | :--- | :--- | :--- |
-| **Node ID** | Unique Device Identifier including optional hierarchy prefix. | [../../]node | `dk/cph/tlc-001` |
+| **Node ID** | Unique Device Identifier including optional hierarchy prefix. | [../../]node | `tlc-001` |
 | **Type** | Protocol Keyword / Parsing Anchor. | Fixed Enum | `command`, `status`, `alarm`, `presence` |
 | **Code** | Message Code (from SXL). Flattened to avoid ambiguity. | Dotted String | `tlc.plan.set` (derived from `tlc/plan/set`) |
 | **Component** | Logic resource path. | Slashed String | `sg/1` |
@@ -42,8 +42,8 @@ The node id can consist of 1 or more levels, e.g. `af5g`, `zone1/tlc-001` or `dk
 
 ### Examples
 
-`dk/cph/tlc-001/command/tlc.plan.set`
-`dk/cph/tlc-001/status/tlc.plan.status`
+`45fe/command/tlc.plan.set`
+`45fe/status/tlc.plan.status`
 
 ### Wildcards
 
@@ -51,10 +51,10 @@ The node id can consist of 1 or more levels, e.g. `af5g`, `zone1/tlc-001` or `dk
 
 This layout allows easy subscription to all messages for a specific device or area:
 
-- All messages for a specific device: `dk/cph/tlc-001/#`
-- All messages for a region: `dk/cph/#`
+- All messages for a specific device: `45fe/#`
+- All messages for a region: `dk/#`
 
 "\\+" (plus sign) is used to match a single level in the hierarchy.
 
-- All status messages for a device: `dk/cph/tlc-001/status/#`
+- All status messages for a device: `45fe/status/#`
 

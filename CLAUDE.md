@@ -24,7 +24,7 @@ docs/Gemfile      # Ruby deps for the docs site
 
 Top-level spec pages: `overview.md`, `mqtt.md`, `nodes.md`, `modules.md`, `components.md`, `streams.md`, `versioning.md`
 
-Message sub-pages (parent: `Messages`): `presence.md`, `status.md`, `command.md`, `result.md`, `alarm.md`, `reaction.md`, `aggregate.md`, `stream.md`, `throttle.md`
+Message sub-pages (parent: `Messages`): `presence.md`, `status.md`, `command.md`, `result.md`, `alarm.md`, `aggregate.md`, `stream.md`, `throttle.md`
 
 ## Key Terminology
 
@@ -45,11 +45,11 @@ Message sub-pages (parent: `Messages`): `presence.md`, `status.md`, `command.md`
 ## MQTT Topic Structure
 
 ```
-<node_id>/<type>/<code>[/<stream>][/<component>]
+<node>/<type>/<code>[/<stream>][/<component>]
 ```
 
 - `node_id` may be multi-level: `dk/cph/tlc-001`
-- `type`: `status`, `command`, `alarm`, `result`, `reaction`, `presence`, `stream`, `throttle`
+- `type`: `status`, `command`, `alarm`, `result`, `presence`, `stream`, `throttle`
 - `stream` is inserted between `code` and `component` for status topics only
 - `presence` has no code or component segment
 

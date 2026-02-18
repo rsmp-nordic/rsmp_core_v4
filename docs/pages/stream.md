@@ -15,8 +15,8 @@ They do not carry status data values.
 
 Examples:
 ```
-dk/cph/45fe/stream/tlc.groups/live      # state for live stream of signal groups
-dk/cph/45fe/stream/tlc.groups/hourly    # state for hourly stream of signal groups
+45fe/stream/tlc.groups/live      # state for live stream of signal groups
+45fe/stream/tlc.groups/hourly    # state for hourly stream of signal groups
 ```
 
 Payload (CBOR encoded JSON) is explicitly defined as:

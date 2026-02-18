@@ -77,8 +77,8 @@ Whitespace is not allowed before or after commas and hyphens.
 Component ids are used in topic paths, for example:
 
 ```
-dk/cph/45fe/alarm/tlc.301/dl/6         # A0301 error for component dl.6 on node 45fe
-dk/cph/45fe/command/sensor.17/sg/1     # Command M0017 to signal group 1 on node 45fe
+45fe/alarm/tlc.301/dl/6         # A0301 error for component dl.6 on node 45fe
+45fe/command/sensor.17/sg/1     # Command M0017 to signal group 1 on node 45fe
 ```
 
 RSMP 4 is based on MQTT which allow the last payload published to each topic path to be retained.
@@ -103,8 +103,8 @@ dl
 You can refer to the main component by using the component ID explicitly, or by omitting the component ID from the topic path. For example, assuming the component `tc` is configured as the main component, these two commands achieve the same:
 
 ```
-dk/cph/45fe/command/tlc.plan.set/tc   # Send command to component tc
-dk/cph/45fe/command/tlc.plan.set      # Shorthand to send command to the main component
+45fe/command/tlc.plan.set/tc   # Send command to component tc
+45fe/command/tlc.plan.set      # Shorthand to send command to the main component
 ```
 
 The shorthand means you can address the main component without knowing its component id. This can be important when you want to inspect a new or unknown device where you don't know the id of the main component.

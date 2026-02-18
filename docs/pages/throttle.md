@@ -15,14 +15,14 @@ stream on a node.
 
 Examples:
 ```
-dk/cph/45fe/throttle/tlc.groups/live      # start/stop live signal group stream
-dk/cph/45fe/throttle/traffic.volume/5s    # start/stop 5s traffic stream
+45fe/throttle/tlc.groups/live      # start/stop live signal group stream
+45fe/throttle/traffic.volume/5s    # start/stop 5s traffic stream
 ```
 
 For single-stream statuses, `default` can be used as stream name:
 
 ```
-dk/cph/45fe/throttle/tlc.plan/default
+45fe/throttle/tlc.plan/default
 ```
 
 Payload (CBOR encoded JSON):
