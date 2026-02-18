@@ -6,14 +6,17 @@ permalink: /messages/result/
 ---
 
 ## Command Result
-A command result is published after handling a command.
-
 ```
 <node>/result/<code>[/<component>]
 ```
 
+Send after handling a command.
+
+When a command is received the Result Topic indicates the topic to publish the result to. The `node` is the id of the node that send the command.
+
+
 Examples:
 ```
-45fe/result/tlc.plan.set      # TLC plan.set result (for main component) from node 45fe
+45fe/result/tlc.plan.set      # TLC plan.set result from node 45fe
 45fe/result/sensor.17/dl/3    # Sensor M0017 for detector logic 3 from node 45fe
 ```

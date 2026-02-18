@@ -21,28 +21,17 @@ RSMP 4 defines the following messages with coresponding topic paths structures:
 | [Alarm](alarm.md) | `<node>/alarm/<code>[/<component>]` |
 
 
-Most topic paths (except presence and stream state) follow this layout:
 
-```
-<node>/<type>/<code>[/<component>]
-```
-
-- node: The unique identity of the RSMP node, including optional hierarchy prefix.
+- node: The unique identity of the RSMP node, Can consist of one or more levels, but use must be consistent across a setup.
 - type: the type of message, e.g. status, command, alarm.
-- code: the code of command/status/alarm within the module (flattened).
+- code: the code of command/status/alarm within the module.
+- stream: stream related to the status code
 - component: indentifies one or more [components](components.md).
 
 The component is kept at the end of the topic path to ensure that you can retain status, commands and alarms for each component and easily subscribe to sub-trees.
 
-The component can be left out as a shortcut to refer to the main component.
+The component can be left out as a shortcut to refer to the entire node.
 
-Stream state uses a dedicated layout:
-
-```
-<node>/stream/<code>/<stream>
-```
-
-This topic is used to publish stream lifecycle/state changes (e.g. running/stopped), while stream data itself is still published under status topics.
 
 ## Payload CBOR Encoding
 Message payloads consist of JSON encoded in binary format using [CBOR (Concise Binary Object Representation)](https://cbor.io).

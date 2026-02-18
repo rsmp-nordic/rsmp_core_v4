@@ -10,6 +10,8 @@ permalink: /messages/command/
 <node>/command/<code>[/<component>]
 ```
 
+Used to send a command to a node.
+
 Examples:
 ```
 45fe/command/tlc.plan.set              # set signal plan (for main component) on node 45fe
@@ -17,12 +19,12 @@ Examples:
 ```
 
 
-All devices subscribe to a command topic that includes their id, which the supervisor can publish to. 
+All devices subscribe to a command topic that includes their own id, which the supervisor can publish to. 
 
 Device subscribe to  `<node>/command/<code>[/<component>]`
 
-node: the id of the device itself (incl. hierarchy)
-code: the command code (flattened)
+node: the id of the device itself
+code: the command code
 
 The payload contains the parameters in JSON format.
 
@@ -48,17 +50,17 @@ And let's suppose the traffic light supports these modules:
 `45fe/command/tlc.plan.set`
 
 We send the command to the `main` component (by omitting the component part).
-We use `plan.set` command in the `tlc` module (code `tlc.plan.set`).
+We use `tlc.plan.set` command.
 
 The payload would include the arguments, like what plan to switch to.
 
 ### Set detector sensibility
-`45fe/command/detector.sensibility/dl1`
+`45fe/command/detector.sensibility/dl/1`
 
-We send the command to the `dl1` component.
-We use `sensibility` command in the `detector` module (code `detector.sensibility`).
+We send the command to the `dl/1` component.
+We use `detector.sensibility` command.
 
-The payload would include the arguments, like the sensibility value.
+The payload would include the arguments, like the sensibility value, as well as a unique commmand tracking id.
 
 ### Sending to many devices
 A traffic light with id 45fe could subscribe to a topic with the id 'all' (if supported by project governance):
@@ -68,9 +70,12 @@ The supervisor can publish to this topic to e.g. change the signal plan on all t
 `all/command/tlc.plan.set`
 
 ## Result
-How would command results be handled? We would use the request-result pattern, which is based on Result Topics. When you send a command, you pass a topic that would want to result to be published to. A supervisor sending a command could pass the result topic:
-`<supervisor_id>/result/<code>[/<component>]`.
+When you send a command, you set a Result Topics which the node will use to publish a result message to.
+For exampe, a supervisor sending a command could set the result topic:
+`<supervisor>/result/<code>[/<component>]`.
 
-When a supervisor with id 22ba changing plan with `45fe/command/tlc.plan.set`, the response would be send to `22ba/result/tlc.plan.set`.
+The payload includes informationk about the node and the command tracking id.
 
-All supervisor can receive result if the just subscribe to `+/result/tlc.plan.set`.
+When a supervisor 22ba changes the plan on node 45fe with `45fe/command/tlc.plan.set`, the response would be send to `22ba/result/tlc.plan.set`, so the supervisor know the result of the command.
+
+A supervisor can receive result related to other supervisors by subscribe to e.g. `+/result/tlc.plan.set` or `+/result/#`.

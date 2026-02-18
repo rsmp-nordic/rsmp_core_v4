@@ -10,6 +10,8 @@ permalink: /messages/alarm/
 <node>/alarm/<code>[/<component>]
 ```
 
+Send by a node when an alarm becames active or inactive.
+
 Examples:
 ```
 45fe/alarm/tlc.hardware.error   # serious hardware error (for main component) on node 45fe
@@ -17,14 +19,16 @@ Examples:
 ```
 
 For example, a traffic light `bb35` that has a hardware error in detector logic 4 might publish to:
-`bb35/alarm/tlc.hardware.error/dl/4`
+```
+bb35/alarm/tlc.hardware.error/dl/4
+```
 
 
 ## Subscribing
 Supervisors can subscribe to all alarms from a specific device:
 `45fe/alarm/#`
 
-Or all alarms within a region (assuming fixed prefix depth):
-`+/alarm/#`
+Or all alarms within a region (node ids has 2 levels):
+`zone1/+/alarm/#`
 
 
