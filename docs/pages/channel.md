@@ -79,14 +79,12 @@ after reconnecting.
 Replay is off by default. A maximum buffer duration can also be configured to
 limit how much data the node retains.
 
-## Pruning
-Channels can be configured to automatically stop when consumers disappear, or
-have been offline for a predefined period.
+## Timeout
+A channel can be started with an optional timeout. When the timeout expires,
+the channel stops automatically and retained data is cleared from the broker.
 
-This is useful for channels that consume significant bandwidth. Automatic
-stopping is based on the [Presence](presence.md) message, which informs the node when other
-nodes go online/offline.
+This is useful for channels that consume significant bandwidth. A consumer that
+wants to keep the channel running MUST periodically restart it before the timeout
+expires.
 
-When all known consumers go offline, a prune timer starts. If no consumer
-comes back within the prune timeout, the channel is stopped and retained data
-is cleared from the broker.
+See [Throttle](throttle.md) for how to specify a timeout when starting a channel.

@@ -28,13 +28,15 @@ For single-channel statuses, `default` can be used as channel name:
 Payload (CBOR encoded JSON):
 
 ```json
-{"action": "start" | "stop"}
+{"action": "start" | "stop", "timeout": <seconds>}
 ```
 
 Rules:
-- The payload MUST include exactly one key: `action`.
+- The payload MUST include the key `action`.
 - `action` MUST be one of: `start`, `stop`.
-- No additional payload keys are currently defined for this topic.
+- `timeout` is optional and MUST only be used with `action: "start"`.
+- `timeout` specifies the number of seconds after which the channel stops automatically.
+- If `timeout` is omitted, the channel runs until explicitly stopped.
 
 ## MQTT Behavior
 - QoS: `1`
