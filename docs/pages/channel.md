@@ -61,6 +61,15 @@ Subscription patterns:
 - `45fe/channel/tlc.groups/#` — all channel states for signal group status
 - `+/channel/#` — all channel states from all devices
 
+## Replay
+A channel can be configured to buffer published data locally and replay it on
+reconnect, including send-on-change data. When replay is enabled, the node
+buffers data during outages and publishes it to [Replay](replay.md) topics
+after reconnecting.
+
+Replay is off by default. A maximum buffer duration can also be configured to
+limit how much data the node retains.
+
 ## Pruning
 Channels can be configured to automatically stop when consumers disappear, or
 have been offline for a predefined period.

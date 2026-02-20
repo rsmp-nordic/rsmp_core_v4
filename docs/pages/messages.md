@@ -16,6 +16,9 @@ RSMP 4 defines the following messages with coresponding topic paths structures:
 | [Status](status.md) | `<node>/status/<code>[/<channel>][/<component>]` |
 | [Channel](channel.md) | `<node>/channel/<code>/<channel>` |
 | [Throttle](throttle.md) | `<node>/throttle/<code>/<channel>` |
+| [Replay](replay.md) | `<node>/replay/<code>/<channel>[/<component>]` |
+| [Fetch](fetch.md) | `<node>/fetch/<code>/<channel>[/<component>]` |
+| [History](history.md) | `<supervisor>/history/<code>/<channel>[/<component>]` |
 | [Command](command.md) | `<node>/command/<code>[/<component>]` |
 | [Result](result.md) | `<node>/result/<code>[/<component>]` |
 | [Alarm](alarm.md) | `<node>/alarm/<code>[/<component>]` |
