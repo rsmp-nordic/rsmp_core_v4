@@ -14,10 +14,17 @@ published directly to the requesting supervisor.
 <node>/fetch/<code>/<channel>[/<component>]
 ```
 
+If the channel name is omitted in the corresponding status topic, it MUST also be omitted here:
+
+```
+<node>/fetch/<code>
+```
+
 Examples:
 ```
 45fe/fetch/tlc.groups/hourly              # fetch hourly signal group data from node 45fe
-45fe/fetch/traffic.count/hourly/dl/1     # fetch hourly traffic data for detector logic 1
+45fe/fetch/tlc.plan                       # fetch current plan (single channel, name omitted)
+45fe/fetch/traffic.count/hourly/dl/1      # fetch hourly traffic data for detector logic 1
 ```
 
 ## Purpose
@@ -35,7 +42,7 @@ the requesting supervisor only.
 Fetch uses MQTT 5 Request/Response:
 
 - The supervisor MUST set the **Response Topic** to `<supervisor>/history/<code>/<channel>[/<component>]`,
-  where `code`, `channel`, and `component` match those in the fetch topic path.
+  where `code`, `channel`, and `component` match those in the fetch topic path. This strict format is mandated for global observability and debugging by third-party clients.
 - The supervisor MUST set **Correlation Data** to a unique identifier for the
   request. The node MUST echo this value in every history message it publishes
   in response.
@@ -52,6 +59,8 @@ Fetch uses MQTT 5 Request/Response:
 
 ## Payload
 
+The payload is CBOR encoded (represented here as JSON). Timestamps MUST be encoded as ISO 8601 strings.
+
 ```json
 {
   "from": "2026-02-19T08:00:00Z",
@@ -63,6 +72,14 @@ Fetch uses MQTT 5 Request/Response:
 |---|---|---|
 | `from` | ISO 8601 timestamp | Start of requested time range (inclusive) |
 | `to` | ISO 8601 timestamp | End of requested time range (exclusive) |
+
+## Fetching Deltas
+
+When a supervisor fetches a time window, it might receive only delta updates if no full update occurred in that window. The node returns whatever is in its buffer for the requested range. The supervisor is responsible for fetching further back in time to find a full update if it needs to establish a baseline state.
+
+## Stopped Channels
+
+Fetch requests are valid even if the target channel is currently in a `stopped` state. The node will return any buffered data that falls within the requested time range.
 
 ## Node Subscription
 

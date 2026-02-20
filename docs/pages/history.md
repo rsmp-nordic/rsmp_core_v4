@@ -14,15 +14,22 @@ Response Topic set in the fetch message.
 <supervisor>/history/<code>/<channel>[/<component>]
 ```
 
+If the channel name is omitted in the corresponding status topic, it MUST also be omitted here:
+
+```
+<supervisor>/history/<code>
+```
+
 Examples:
 ```
 22ba/history/tlc.groups/hourly              # history delivered to supervisor 22ba
-22ba/history/traffic.count/hourly/dl/1     # history for detector logic 1
+22ba/history/tlc.plan                       # history for current plan (single channel, name omitted)
+22ba/history/traffic.count/hourly/dl/1      # history for detector logic 1
 ```
 
 The topic path is set by the supervisor as the Response Topic in the fetch
 request. The supervisor MUST use this exact format, matching the `code`,
-`channel`, and `component` from the fetch. The node publishes to the Response
+`channel`, and `component` from the fetch. This strict format is mandated for global observability and debugging by third-party clients. The node publishes to the Response
 Topic verbatim without validation.
 
 ## MQTT Properties
@@ -36,7 +43,7 @@ Topic verbatim without validation.
 ## Payload
 
 History messages use the same attribute schema as the channel's normal status
-messages, with additional metadata fields:
+messages, with additional metadata fields. The payload is CBOR encoded (represented here as JSON). Timestamps MUST be encoded as ISO 8601 strings.
 
 ```json
 {
@@ -65,7 +72,13 @@ the MQTT message arrival time.
 ## Empty Response
 
 If no data is available for the requested range, the node MUST send a single
-message with `complete: true` and no `values` field.
+message with `complete: true` and no `values`, `seq`, or `ts` fields:
+
+```json
+{
+  "complete": true
+}
+```
 
 ## Supervisor Subscription
 

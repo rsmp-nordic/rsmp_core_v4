@@ -13,13 +13,22 @@ They do not carry status data values.
 <node>/channel/<code>/<channel>
 ```
 
+If the channel name is omitted in the corresponding status topic, it MUST also be omitted here:
+
+```
+<node>/channel/<code>
+```
+
+Channel state applies to the entire channel across all components. Therefore, the `[/<component>]` segment is never present in the channel topic path.
+
 Examples:
 ```
 45fe/channel/tlc.groups/live      # state for live channel of signal groups
 45fe/channel/tlc.groups/hourly    # state for hourly channel of signal groups
+45fe/channel/tlc.plan             # state for current plan (single channel, name omitted)
 ```
 
-Payload (CBOR encoded JSON) is explicitly defined as:
+Payload (CBOR, represented here as JSON) is explicitly defined as:
 
 ```json
 {"state": "running" | "stopped"}
@@ -75,7 +84,7 @@ Channels can be configured to automatically stop when consumers disappear, or
 have been offline for a predefined period.
 
 This is useful for channels that consume significant bandwidth. Automatic
-stopping is based on the `presence` message, which informs the node when other
+stopping is based on the [Presence](presence.md) message, which informs the node when other
 nodes go online/offline.
 
 When all known consumers go offline, a prune timer starts. If no consumer

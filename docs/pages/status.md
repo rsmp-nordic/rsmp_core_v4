@@ -53,6 +53,8 @@ name may be omitted:
 <node>/status/<code>
 ```
 
+When the channel name is omitted in the status topic, it MUST also be omitted in the corresponding `channel`, `fetch`, and `history` topics.
+
 The channel name **cannot** be omitted when component segments are present,
 because the first segment after the code is always parsed as the channel name.
 This ensures unambiguous topic parsing without requiring schema knowledge.
@@ -74,6 +76,28 @@ Subscription patterns:
 - `45fe/status/tlc.groups/#` — all channels for signal group status
 - `45fe/status/#` — all status data for a device
 - `+/status/#` — all status data from all devices
+
+## Payload
+
+The payload is CBOR encoded (represented here as JSON) and contains the status attributes and a sequence number:
+
+```json
+{
+  "values": {
+    "signalgroupstatus": "11111111",
+    "stage": "1",
+    "cyclecounter": 42
+  },
+  "seq": 123
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `values` | object | Status attributes |
+| `seq` | integer | Sequence number, incremented for each publication |
+
+The sequence number allows consumers to detect gaps (missed messages). The sequence counter resets to zero when a channel is (re)started.
 
 ## Attribute Types
 Each attribute in a channel has a type that controls when it triggers publication:
@@ -173,12 +197,6 @@ High-frequency channels (e.g. live signal groups) should typically default to
 off. Low-frequency channels (e.g. current plan, control mode) typically default
 to on, but this is not required — a status may have all its channels default to
 off if the data should only flow on demand.
-
-## Sequence Numbers
-Each status message includes a sequence number, incremented for each
-publication.
-This allows consumers to detect gaps (missed messages).
-The sequence counter resets to zero when a channel is (re)started.
 
 ## MQTT 5 Features
 - **Topic Aliases**: reduce per-message overhead for high-frequency topics.
