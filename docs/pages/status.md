@@ -6,30 +6,27 @@ permalink: /messages/status/
 ---
 
 # Status
+A node sends status messages to inform consumers about changes.
 
-All status data is delivered exclusively via _channels_. Every status code must define at least one channel.
+The type of status is identified by a status code.
 
-Channels can be configured with aggregation, rate
-limiting, and on-demand activation.
+Status data is delivered via channels. Every status code must define at least one channel.
 
-A status is not required to have any channel that defaults to on — some data (e.g. high-frequency signal groups) may
-only be published when explicitly started by a consumer.
-
-A channel defines how a particular status is published, including:
+A channel defines a deliver mechanism for a status, including:
 
 - **Code**: module and status code, e.g. `tlc.groups`
-- **Attributes**: which attributes to include, and their type (Send on Change or Send Along)
+- **Attributes**: which attributes to include, and their type (Send on Change or Send Along) and aggregation (sum, min, max, average, etc.)
 - **Update rate**: interval for periodic full updates (retained on the broker)
 - **Delta rate**: how delta updates are triggered (on change, or at an interval)
 - **Min interval**: minimum time between consecutive delta publications
-- **Aggregation**: off, sum, count, average, median, max, min
 - **Default state**: whether the channel starts automatically (on/off)
 - **QoS**: MQTT quality of service level
 - **Prune timeout**: auto-stop after consumers disappear
 
-A node can have one or more channels configured for each status type. If all
+A node must have one or more channels configured for each status type. If all
 channels for a status are stopped, no data is published for that status.
 
+A status is not required to have any channel that defaults to on. Some data like high-frequency signal groups) may default to off and only be published when explicitly started by a consumer.
 
 ```mermaid
 graph LR
@@ -49,7 +46,8 @@ Multiple consumers benefit from the same published data without additional load 
 <node>/status/<code>/<channel>[/<component>]
 ```
 
-When a status has only a single channel and no component segments, the channel name may be omitted:
+When a status has only a single channel and no component segments, the channel
+name may be omitted:
 
 ```
 <node>/status/<code>
@@ -78,7 +76,6 @@ Subscription patterns:
 - `+/status/#` — all status data from all devices
 
 ## Attribute Types
-
 Each attribute in a channel has a type that controls when it triggers publication:
 
 ### Send on Change (primary)
@@ -116,9 +113,15 @@ They are sent:
 New subscribers immediately receive the latest full update from the broker's
 retained message store.
 
+The update rate can either be a fixed interval, e.g. 1 minute, 15 minutes or 1 hour, or 'Send on Change' which means an update is sent immediately whenever data changes.
+
+Fixed update windows should be aligned to clock boundaries (e.g. every 15 minutes on the quarter-hour).
+
 ### Delta Updates
-Delta updates contain only the Send on Change attributes that actually changed,
-plus all Send Along attributes. They are published with MQTT `retain = false`.
+Delta updates contain only attributes that actually changed, plus all Send Along attributes.
+They are published with MQTT `retain = false`.
+
+For example, live data about signal groups of a traffic light controller could use a full update once per minute, which sends the state of all groups, and delta updates that contain just the changed groups, sent immediately when a group changes.
 
 Delta updates are triggered according to the **delta rate**:
 - **on_change**: published immediately when a Send on Change attribute changes
@@ -142,8 +145,7 @@ Each channel specifies an MQTT QoS level:
 | 1 (at least once) | Data where loss is costly (e.g. aggregated traffic counts, alarms) |
 
 ## Aggregation
-
-Channels can aggregate data over time windows:
+Each attribute can be aggregated over the channel update rate window:
 
 - **sum**: total count over the window (e.g. vehicle count)
 - **average**: mean over the window (e.g. speed)
@@ -151,10 +153,16 @@ Channels can aggregate data over time windows:
 - **max**: maximum over the window
 - **min**: minimum over the window
 - **count**: number of events in the window
+- **std**: standard deviation over the window
 
-Aggregation windows should be aligned to clock boundaries (e.g. every 15
-minutes on the quarter-hour). Messages include a `partial` flag when an
-aggregation window was incomplete (e.g. at channel start or stop).
+Aggregated attributes are named with a suffix indicating the function, e.g. `vehicles.sum`, `speed.avg`, `speed.max`.
+
+A channel may include multiple aggregated attributes over the same window.
+
+Aggregated messages are published with MQTT `retain = true`. New consumers will receive the last published window immediately, and wait for the next window boundary for fresh data.
+
+Aggregation windows MUST be aligned to clock boundaries (e.g. every 15 minutes on the quarter-hour). A node MUST NOT start publishing an aggregation channel mid-window — it MUST wait until the next window boundary.
+
 
 ## Default State
 A channel configured as off by default MUST be started via a [Throttle](throttle.md)
@@ -168,11 +176,9 @@ off if the data should only flow on demand.
 
 ## Sequence Numbers
 Each status message includes a sequence number, incremented for each
-publication. This allows consumers to detect gaps (missed messages) when using
-QoS 0. The sequence counter resets when a channel is (re)started.
+publication.
+This allows consumers to detect gaps (missed messages).
+The sequence counter resets to zero when a channel is (re)started.
 
 ## MQTT 5 Features
-
-- **Message Expiry Interval**: full updates expire after 2× the update rate,
-  preventing stale retained messages if a device goes offline.
 - **Topic Aliases**: reduce per-message overhead for high-frequency topics.
