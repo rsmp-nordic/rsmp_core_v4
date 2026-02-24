@@ -58,7 +58,7 @@ Fetch uses MQTT 5 Request/Response:
 
 ## Payload
 
-The payload is CBOR encoded (represented here as JSON). Timestamps MUST be encoded as ISO 8601 strings.
+Timestamps MUST be encoded as ISO 8601 strings.
 
 ```json
 {
