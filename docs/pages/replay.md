@@ -71,24 +71,59 @@ generally do not require complete live history.
 ## Payload
 
 Replay messages use the same attribute schema as the channel's normal status
-messages, with additional metadata fields:
+messages, with additional metadata fields.
+
+### Unbatched Replay Payload
 
 ```json
 {
   "ts":       "2026-02-19T08:15:00Z",
+  "next_ts":  "2026-02-19T08:15:03Z",
   "values":   { ... },
   "seq":      2,
   "complete": false
 }
 ```
 
+### Batched Replay Payload
+
+A node MAY send multiple buffered events in a single MQTT message using an
+`entries` array, reducing network overhead during large replays:
+
+```json
+{
+  "entries": [
+    {
+      "ts":      "2026-02-19T08:00:00Z",
+      "next_ts": "2026-02-19T09:00:00Z",
+      "values":  { ... },
+      "seq":     101
+    },
+    {
+      "ts":      "2026-02-19T09:00:00Z",
+      "next_ts": "2026-02-19T10:00:00Z",
+      "values":  { ... },
+      "seq":     102
+    }
+  ],
+  "complete": false
+}
+```
+
+### Fields
+
 | Field | Type | Description |
 |---|---|---|
 | `ts` | ISO 8601 timestamp | Original recording time on the device |
+| `next_ts` | ISO 8601 timestamp or null | Timestamp of the next event in the buffer. `null` on the last entry when no subsequent event exists yet. |
 | `values` | object | Status attributes, identical in schema to live channel output |
 | `seq` | integer | Original sequence number from the status channel — continuous with live messages |
 | `complete` | boolean | `true` on the final message in the replay batch |
-| `truncated` | boolean | `true` if the buffer did not cover the full outage period (optional, included only when true) |
+| `beginning` | boolean | `true` on the first message if the buffer's oldest entry is newer than when the node went offline — data from earlier in the outage was not available (optional, included only when true) |
+| `entries` | array | Optional. Array of event objects, each containing `ts`, `next_ts`, `values`, and `seq` |
+
+When `entries` is present, `complete` and `beginning` apply to the message as
+a whole, not to individual entries.
 
 Consumers MUST use `ts` to position replay messages in the correct place in
 the time series, not the MQTT message arrival time.

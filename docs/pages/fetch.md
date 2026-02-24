@@ -42,7 +42,7 @@ the requesting supervisor only.
 Fetch uses MQTT 5 Request/Response:
 
 - The supervisor MUST set the **Response Topic** to `<supervisor>/history/<code>/<channel>[/<component>]`,
-  where `code`, `channel`, and `component` match those in the fetch topic path. This strict format is mandated for global observability and debugging by third-party clients.
+  where `code`, `channel`, and `component` match those in the fetch topic path.
 - The supervisor MUST set **Correlation Data** to a unique identifier for the
   request. The node MUST echo this value in every history message it publishes
   in response.
@@ -55,7 +55,6 @@ Fetch uses MQTT 5 Request/Response:
 | Retain | `false` |
 | Response Topic | `<supervisor>/history/<code>/<channel>[/<component>]` |
 | Correlation Data | Set by supervisor |
-| Message Expiry Interval | SHOULD be set — avoids stale fetches being delivered if the node was offline |
 
 ## Payload
 
@@ -73,9 +72,13 @@ The payload is CBOR encoded (represented here as JSON). Timestamps MUST be encod
 | `from` | ISO 8601 timestamp | Start of requested time range (inclusive) |
 | `to` | ISO 8601 timestamp | End of requested time range (exclusive) |
 
-## Fetching Deltas
+## Fetching Event Updates
 
-When a supervisor fetches a time window, it might receive only delta updates if no full update occurred in that window. The node returns whatever is in its buffer for the requested range. The supervisor is responsible for fetching further back in time to find a full update if it needs to establish a baseline state.
+When a supervisor fetches a time window, it might receive only event updates
+if no periodic update occurred in that window. The node returns whatever is
+in its buffer for the requested range. The supervisor is responsible for
+fetching further back in time to find a periodic update if it needs to
+establish a baseline state.
 
 ## Stopped Channels
 

@@ -72,12 +72,29 @@ Subscription patterns:
 
 ## Replay
 A channel can be configured to buffer published data locally and replay it on
-reconnect, including send-on-change data. When replay is enabled, the node
+reconnect, including event data. When replay is enabled, the node
 buffers data during outages and publishes it to [Replay](replay.md) topics
 after reconnecting.
 
 Replay is off by default. A maximum buffer duration can also be configured to
 limit how much data the node retains.
+
+## Batching
+A channel can be configured with a **batch interval** to group multiple
+updates into a single MQTT message. Instead of publishing each event
+immediately, the node accumulates events in memory and publishes them
+together as an `entries` array at the configured interval.
+
+Batching reduces per-message MQTT overhead on constrained networks while
+preserving the exact timestamp and sequence number of each individual event.
+
+Batching is optional and orthogonal to other channel settings. Channels that
+require minimal latency (e.g. live signal groups) should not use batching.
+Channels with high event rates on constrained links (e.g. periodic sensor
+readings, traffic counts) benefit most from batching.
+
+See [Status](status.md) for payload format details and retention rules
+for batched messages.
 
 ## Timeout
 A channel can be started with an optional timeout. When the timeout expires,

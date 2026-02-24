@@ -16,9 +16,10 @@ A channel defines a deliver mechanism for a status, including:
 
 - **Code**: module and status code, e.g. `tlc.groups`
 - **Attributes**: which attributes to include, and their type (Send on Change or Send Along) and aggregation (sum, min, max, average, etc.)
-- **Update rate**: interval for periodic full updates (retained on the broker)
-- **Delta rate**: how delta updates are triggered (on change, or at an interval)
-- **Min interval**: minimum time between consecutive delta publications
+- **Periodic interval**: interval for periodic updates
+- **Event rate**: how event updates are triggered (on change, or at an interval)
+- **Min interval**: minimum time between consecutive event publications
+- **Batch interval**: optional interval for grouping multiple updates into a single message
 - **Default state**: whether the channel starts automatically (on/off)
 - **QoS**: MQTT quality of service level
 - **Prune timeout**: auto-stop after consumers disappear
@@ -79,10 +80,14 @@ Subscription patterns:
 
 ## Payload
 
-The payload is CBOR encoded (represented here as JSON) and contains the status attributes and a sequence number:
+The payload is CBOR encoded (represented here as JSON).
+
+### Unbatched Payload
+A standard unbatched message contains a single event:
 
 ```json
 {
+  "ts": "2026-02-24T10:00:00.000Z",
   "values": {
     "signalgroupstatus": "11111111",
     "stage": "1",
@@ -94,22 +99,51 @@ The payload is CBOR encoded (represented here as JSON) and contains the status a
 
 | Field | Type | Description |
 |---|---|---|
+| `ts` | ISO 8601 timestamp | The exact time the event occurred |
 | `values` | object | Status attributes |
-| `seq` | integer | Sequence number, incremented for each publication |
+| `seq` | integer | Sequence number, incremented for each event |
 
-The sequence number allows consumers to detect gaps (missed messages). The sequence counter resets to zero when a channel is (re)started.
+The sequence number allows consumers to detect gaps (missed messages). The
+sequence counter resets to zero when a channel is (re)started.
+
+### Batched Payload
+If a channel is configured with a **batch interval**, multiple events are
+held in memory and published together as an array in a single MQTT message.
+This reduces network overhead on constrained links.
+
+```json
+{
+  "entries": [
+    {
+      "ts": "2026-02-24T10:00:00.000Z",
+      "values": {"signalgroupstatus": "11111111", "cyclecounter": 42},
+      "seq": 123
+    },
+    {
+      "ts": "2026-02-24T10:00:02.000Z",
+      "values": {"signalgroupstatus": "00000000", "cyclecounter": 44},
+      "seq": 124
+    }
+  ]
+}
+```
+
+Batching is optional — channels that require minimal latency (e.g. live signal
+groups) can omit a batch interval and publish each event immediately.
+Batching is orthogonal to whether an update is periodic or event-driven;
+both types can be batched.
 
 ## Attribute Types
 Each attribute in a channel has a type that controls when it triggers publication:
 
 ### Send on Change (primary)
-A change to this attribute triggers publication of a delta update. The update
-includes the new value of this attribute plus the current values of all Send
-Along attributes.
+A change to this attribute triggers an event update. The update includes the
+new value of this attribute plus the current values of all Send Along
+attributes.
 
 ### Send Along (secondary)
 This attribute is included in every update, but a change to its value alone
-does NOT trigger publication.
+does NOT trigger an event.
 
 This distinction is important for statuses that mix primary data with metadata.
 For example, signal group status (S0001) includes:
@@ -126,38 +160,57 @@ would trigger continuous updates even when no signal groups have changed. With
 it, cyclecounter values are only sent when meaningful — at the exact moment a
 signal transition occurs, providing precise timing tied to the actual event.
 
-## Full and Delta Updates
+## Periodic and Event Updates
 
-### Full Updates
-Full updates contain all attributes and are published with MQTT `retain = true`.
-They are sent:
+### Periodic Updates
+Periodic updates contain all attributes. They are generated:
 - When the channel first starts
-- Periodically according to the **update rate**
+- Periodically according to the **periodic interval**
 
-New subscribers immediately receive the latest full update from the broker's
-retained message store.
+The periodic interval can be e.g. 1 minute, 15 minutes or 1 hour.
+Fixed update windows should be aligned to clock boundaries (e.g. every 15
+minutes on the quarter-hour).
 
-The update rate can either be a fixed interval, e.g. 1 minute, 15 minutes or 1 hour, or 'Send on Change' which means an update is sent immediately whenever data changes.
+### Event Updates
+Event updates contain only attributes that actually changed, plus all Send
+Along attributes.
 
-Fixed update windows should be aligned to clock boundaries (e.g. every 15 minutes on the quarter-hour).
+For example, live data about signal groups of a traffic light controller could
+use a periodic update once per minute, which sends the state of all groups,
+and event updates that contain just the changed groups, generated immediately
+when a group changes.
 
-### Delta Updates
-Delta updates contain only attributes that actually changed, plus all Send Along attributes.
-They are published with MQTT `retain = false`.
+Event updates are triggered according to the **event rate**:
+- **on_change**: generated immediately when a Send on Change attribute changes
+- **interval**: generated at fixed intervals if any changes occurred
 
-For example, live data about signal groups of a traffic light controller could use a full update once per minute, which sends the state of all groups, and delta updates that contain just the changed groups, sent immediately when a group changes.
-
-Delta updates are triggered according to the **delta rate**:
-- **on_change**: published immediately when a Send on Change attribute changes
-- **interval**: published at fixed intervals if any changes occurred
-
-### Min Interval
-The **min interval** sets the minimum time between consecutive delta
+### Min Interval (Coalescing)
+The **min interval** sets the minimum time between consecutive event
 publications. Changes that occur within this window are coalesced into a single
-update. This prevents flooding during rapid state changes.
+event object. This prevents flooding during rapid state changes.
 
 For example, setting `min_interval: 100ms` for signal group status means that
-if three signal groups change within 100ms, a single delta is sent.
+if three signal groups change within 100ms, a single event is generated
+containing all three changes.
+
+## Retention Rules
+
+MQTT retained messages provide new subscribers with the immediate current
+state of a channel. However, retaining a partial data set corrupts the
+subscriber's view.
+
+**The retention rule:** A message MAY ONLY be published with `retain = true`
+if the payload represents a **complete data set** — it contains values for
+*all* primary attributes defined for that channel.
+
+1. **Periodic updates** always include all attributes, so they are complete
+   data sets and SHOULD be retained.
+2. **Event updates** typically contain only changed attributes and MUST be
+   published with `retain = false`, *unless* the event happens to contain
+   all primary attributes (e.g. the channel has only a single primary
+   attribute), in which case it MAY be retained.
+3. **Batched messages** MAY be published with `retain = true` if and only if
+   the *final* event in the `entries` array constitutes a complete data set.
 
 ## QoS
 
@@ -169,7 +222,7 @@ Each channel specifies an MQTT QoS level:
 | 1 (at least once) | Data where loss is costly (e.g. aggregated traffic counts, alarms) |
 
 ## Aggregation
-Each attribute can be aggregated over the channel update rate window:
+Each attribute can be aggregated over the channel periodic interval window:
 
 - **sum**: total count over the window (e.g. vehicle count)
 - **average**: mean over the window (e.g. speed)

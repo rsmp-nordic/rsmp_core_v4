@@ -29,7 +29,7 @@ Examples:
 
 The topic path is set by the supervisor as the Response Topic in the fetch
 request. The supervisor MUST use this exact format, matching the `code`,
-`channel`, and `component` from the fetch. This strict format is mandated for global observability and debugging by third-party clients. The node publishes to the Response
+`channel`, and `component` from the fetch. The node publishes to the Response
 Topic verbatim without validation.
 
 ## MQTT Properties
@@ -43,24 +43,61 @@ Topic verbatim without validation.
 ## Payload
 
 History messages use the same attribute schema as the channel's normal status
-messages, with additional metadata fields. The payload is CBOR encoded (represented here as JSON). Timestamps MUST be encoded as ISO 8601 strings.
+messages, with additional metadata fields.
+Timestamps MUST be encoded as ISO 8601 strings.
+
+### Unbatched History Payload
 
 ```json
 {
   "ts":       "2026-02-19T08:00:00Z",
+  "next_ts":  "2026-02-19T08:00:05Z",
   "values":   { ... },
   "seq":      101,
   "complete": false
 }
 ```
 
+### Batched History Payload
+
+A node MAY send multiple events in a single MQTT message using an `entries`
+array, reducing network overhead during large history responses:
+
+```json
+{
+  "entries": [
+    {
+      "ts":      "2026-02-19T08:00:00Z",
+      "next_ts": "2026-02-19T08:00:05Z",
+      "values":  { ... },
+      "seq":     101
+    },
+    {
+      "ts":      "2026-02-19T08:00:05Z",
+      "next_ts": "2026-02-19T08:00:10Z",
+      "values":  { ... },
+      "seq":     102
+    }
+  ],
+  "complete": false
+}
+```
+
+### Fields
+
 | Field | Type | Description |
 |---|---|---|
 | `ts` | ISO 8601 timestamp | Original recording time on the device |
+| `next_ts` | ISO 8601 timestamp or null | Timestamp of the next event in the buffer. `null` on the last entry when no subsequent event exists yet. |
 | `values` | object | Status attributes, identical in schema to live channel output |
 | `seq` | integer | Original sequence number from the status channel |
 | `complete` | boolean | `true` on the final message in the response |
-| `truncated` | boolean | `true` if the node's buffer did not cover the full requested range (optional, included only when true) |
+| `beginning` | boolean | `true` on the first message if the buffer's oldest entry is newer than the requested `from` — data before this point was not available (optional, included only when true) |
+| `end` | boolean | `true` on the final message if the buffer's newest entry is older than the requested `to` — data after this point was not available (optional, included only when true) |
+| `entries` | array | Optional. Array of event objects, each containing `ts`, `next_ts`, `values`, and `seq` |
+
+When `entries` is present, `complete`, `beginning`, and `end` apply to the message as
+a whole, not to individual entries.
 
 `seq` uses the same counter as live and replay messages for the same channel,
 allowing the supervisor to locate history messages precisely within the overall
