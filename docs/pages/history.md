@@ -92,8 +92,8 @@ array, reducing network overhead during large history responses:
 | `values` | object | Status attributes, identical in schema to live channel output |
 | `seq` | integer | Original sequence number from the status channel |
 | `complete` | boolean | `true` on the final message in the response |
-| `beginning` | boolean | `true` on the first message if the buffer's oldest entry is newer than the requested `from` — data before this point was not available (optional, included only when true) |
-| `end` | boolean | `true` on the final message if the buffer's newest entry is older than the requested `to` — data after this point was not available (optional, included only when true) |
+| `beginning` | boolean | `true` on the first message if the first entry sent is the oldest entry in the node's buffer — there is no earlier data (optional, included only when true) |
+| `end` | boolean | `true` on the final message if the last entry sent is the newest entry in the node's buffer — there is no later data (optional, included only when true) |
 | `entries` | array | Optional. Array of event objects, each containing `ts`, `next_ts`, `values`, and `seq` |
 
 When `entries` is present, `complete`, `beginning`, and `end` apply to the message as

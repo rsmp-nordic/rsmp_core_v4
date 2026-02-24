@@ -119,7 +119,7 @@ A node MAY send multiple buffered events in a single MQTT message using an
 | `values` | object | Status attributes, identical in schema to live channel output |
 | `seq` | integer | Original sequence number from the status channel — continuous with live messages |
 | `complete` | boolean | `true` on the final message in the replay batch |
-| `beginning` | boolean | `true` on the first message if the buffer's oldest entry is newer than when the node went offline — data from earlier in the outage was not available (optional, included only when true) |
+| `beginning` | boolean | `true` on the first message if the first entry sent is the oldest entry in the node's buffer — there is no earlier data (optional, included only when true) |
 | `entries` | array | Optional. Array of event objects, each containing `ts`, `next_ts`, `values`, and `seq` |
 
 When `entries` is present, `complete` and `beginning` apply to the message as
