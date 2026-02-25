@@ -82,34 +82,8 @@ Subscription patterns:
 
 The payload is CBOR encoded (represented here as JSON).
 
-### Unbatched Payload
-A standard unbatched message contains a single event:
-
-```json
-{
-  "ts": "2026-02-24T10:00:00.000Z",
-  "values": {
-    "signalgroupstatus": "11111111",
-    "stage": "1",
-    "cyclecounter": 42
-  },
-  "seq": 123
-}
-```
-
-| Field | Type | Description |
-|---|---|---|
-| `ts` | ISO 8601 timestamp | The exact time the event occurred |
-| `values` | object | Status attributes |
-| `seq` | integer | Sequence number, incremented for each event |
-
-The sequence number allows consumers to detect gaps (missed messages). The
-sequence counter resets to zero when a channel is (re)started.
-
-### Batched Payload
-If a channel is configured with a **batch interval**, multiple events are
-held in memory and published together as an array in a single MQTT message.
-This reduces network overhead on constrained links.
+Every status message carries an `entries` array. A single-event message has
+one entry; a batched message (when `batch_interval` is configured) has multiple.
 
 ```json
 {
@@ -128,10 +102,19 @@ This reduces network overhead on constrained links.
 }
 ```
 
-Batching is optional — channels that require minimal latency (e.g. live signal
-groups) can omit a batch interval and publish each event immediately.
-Batching is orthogonal to whether an update is periodic or event-driven;
-both types can be batched.
+| Field | Type | Description |
+|---|---|---|
+| `entries` | array | One or more event objects in this message |
+| `ts` | ISO 8601 timestamp | The exact time the event occurred |
+| `values` | object | Status attributes |
+| `seq` | integer | Sequence number, incremented for each event |
+
+The sequence number allows consumers to detect gaps (missed messages). The
+sequence counter resets to zero when a channel is (re)started.
+
+Channels without a `batch_interval` publish one entry per message. Channels
+with a `batch_interval` accumulate events and flush them together, reducing
+network overhead on constrained links.
 
 ## Attribute Types
 Each attribute in a channel has a type that controls when it triggers publication:
@@ -209,8 +192,8 @@ if the payload represents a **complete data set** — it contains values for
    published with `retain = false`, *unless* the event happens to contain
    all primary attributes (e.g. the channel has only a single primary
    attribute), in which case it MAY be retained.
-3. **Batched messages** MAY be published with `retain = true` if and only if
-   the *final* event in the `entries` array constitutes a complete data set.
+3. A message MAY be published with `retain = true` if and only if the *final*
+   event in the `entries` array constitutes a complete data set.
 
 ## QoS
 
