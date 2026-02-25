@@ -29,9 +29,7 @@ Examples:
 
 ## Purpose
 
-Fetch allows a supervisor to retrieve status data it missed — for example
-because it was itself offline, because data was lost in transit, or because it
-came online after an auto-replay had already completed.
+Fetch allows a supervisor to retrieve status data it missed.
 
 Unlike [Replay](replay.md), which is producer-initiated and broadcasts to all
 connected supervisors, fetch is consumer-initiated and routes the response to

@@ -7,14 +7,14 @@ permalink: /messages/history/
 
 # History
 History messages are published by a node in response to a [Fetch](fetch.md)
-request. They are delivered directly to the requesting supervisor via the MQTT 5
+request. They are routed to the requesting supervisor via the
 Response Topic set in the fetch message.
 
 ```
 <supervisor>/history/<code>/<channel>[/<component>]
 ```
 
-If the channel name is omitted in the corresponding status topic, it MUST also be omitted here:
+If only one channel is defined for the code, the channel name can be omitted:
 
 ```
 <supervisor>/history/<code>
@@ -22,9 +22,9 @@ If the channel name is omitted in the corresponding status topic, it MUST also b
 
 Examples:
 ```
-22ba/history/tlc.groups/hourly              # history delivered to supervisor 22ba
-22ba/history/tlc.plan                       # history for current plan (single channel, name omitted)
-22ba/history/traffic.count/hourly/dl/1      # history for detector logic 1
+22ba/history/tlc.groups/hourly              # history for signal groups, he hourly channel
+22ba/history/tlc.plan                       # history for current plan (default channel)
+22ba/history/traffic.count/hourly/dl/1      # history for traffic counts hourly channel, on component dl/1
 ```
 
 The topic path is set by the supervisor as the Response Topic in the fetch
@@ -46,22 +46,8 @@ History messages use the same attribute schema as the channel's normal status
 messages, with additional metadata fields.
 Timestamps MUST be encoded as ISO 8601 strings.
 
-### Unbatched History Payload
-
-```json
-{
-  "ts":       "2026-02-19T08:00:00Z",
-  "next_ts":  "2026-02-19T08:00:05Z",
-  "values":   { ... },
-  "seq":      101,
-  "complete": false
-}
-```
-
-### Batched History Payload
-
-A node MAY send multiple events in a single MQTT message using an `entries`
-array, reducing network overhead during large history responses:
+Each MQTT message carries an `entries` array containing zero or more events.
+The array MUST always be present; it MAY be empty.
 
 ```json
 {
@@ -87,6 +73,7 @@ array, reducing network overhead during large history responses:
 
 | Field | Type | Description |
 |---|---|---|
+| `entries` | array | Array of event objects. MUST be present; MAY be empty. Each entry contains `ts`, `next_ts`, `values`, and `seq`. |
 | `ts` | ISO 8601 timestamp | Original recording time on the device |
 | `next_ts` | ISO 8601 timestamp or null | Timestamp of the next event in the buffer. `null` on the last entry when no subsequent event exists yet. |
 | `values` | object | Status attributes, identical in schema to live channel output |
@@ -94,10 +81,8 @@ array, reducing network overhead during large history responses:
 | `complete` | boolean | `true` on the final message in the response |
 | `beginning` | boolean | `true` on the first message if the first entry sent is the oldest entry in the node's buffer — there is no earlier data (optional, included only when true) |
 | `end` | boolean | `true` on the final message if the last entry sent is the newest entry in the node's buffer — there is no later data (optional, included only when true) |
-| `entries` | array | Optional. Array of event objects, each containing `ts`, `next_ts`, `values`, and `seq` |
 
-When `entries` is present, `complete`, `beginning`, and `end` apply to the message as
-a whole, not to individual entries.
+`complete`, `beginning`, and `end` apply to the message as a whole, not to individual entries.
 
 `seq` uses the same counter as live and replay messages for the same channel,
 allowing the supervisor to locate history messages precisely within the overall
@@ -109,10 +94,11 @@ the MQTT message arrival time.
 ## Empty Response
 
 If no data is available for the requested range, the node MUST send a single
-message with `complete: true` and no `values`, `seq`, or `ts` fields:
+message with `complete: true` and an empty `entries` array:
 
 ```json
 {
+  "entries": [],
   "complete": true
 }
 ```

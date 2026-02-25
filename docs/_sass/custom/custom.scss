@@ -1,0 +1,25 @@
+// Custom overrides for code block styling
+
+// Syntax-highlighted code blocks (fenced with a language)
+div.highlighter-rouge,
+figure.highlight {
+  background-color: #1e1e2e;
+  border: none;
+  border-radius: 6px;
+
+  pre.highlight {
+    background-color: transparent;
+  }
+
+  code {
+    color: #cdd6f4;
+    background-color: transparent;
+  }
+}
+
+// Plain fenced blocks (no language specified)
+div.language-plaintext.highlighter-rouge code,
+code.language-plaintext {
+  background-color: #eef0f4;
+  color: #333;
+}

@@ -6,7 +6,7 @@ permalink: /messages/channel/
 ---
 
 # Channel
-Channel messages publish lifecycle/state information for configured channels.
+Channel messages   
 They do not carry status data values.
 
 ```

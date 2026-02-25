@@ -5,7 +5,7 @@ nav_order: 5
 ---
 
 # Components
-A node has one or more components, representing physical of logical elements.
+A node has one or more components, representing physical of logical parts of the node.
 
 Components are referenced using component ids, which must be unique per node.
 
@@ -26,7 +26,6 @@ dl/radar/4
 ```
 
 Whitespace and non-printable characters are not allowed in component ids.
-
 
 Unlike RSMP 3, RSMP 4 component ids does not include the node id. RMSP 3 components which include site ids, like `KK+AG0503=001DL001`, should be convert to RMSP 4 component ids, in this case `dl/1`.
 
@@ -91,40 +90,26 @@ To ensure that the latest status for each component can be retained, groups or l
 On the other hand, commands can use component groups or lists, because commands should not be retained. Instead QoS (Quality of Service) 1 or 2 should be used when sending commands to guarantee delivery. If the receiver is offline, the messages will be kept on the broker. When the receiver comes online again, they will be delivered. Since commands are not retained, newly connected nodes will not received previously send commands.
 
 ## Main component
-Exactly one root level component must be configured as the main component for each node. This component is used to refer to the device as a whole.
+You can refer to the node as a whole by omitting the component ID from the topic path:
 
 ```
-tc     # configured as root component
-sg/1
-sg/2
-dl
+45fe/command/tlc.plan.set      # change signal plan, this applies to the node, not a component
 ```
-
-You can refer to the main component by using the component ID explicitly, or by omitting the component ID from the topic path. For example, assuming the component `tc` is configured as the main component, these two commands achieve the same:
-
-```
-45fe/command/tlc.plan.set/tc   # Send command to component tc
-45fe/command/tlc.plan.set      # Shorthand to send command to the main component
-```
-
-The shorthand means you can address the main component without knowing its component id. This can be important when you want to inspect a new or unknown device where you don't know the id of the main component.
 
 ## Example: Traffic Light Controller
 A traffic light controller managing a single intersection has a traffic controller component, representing the device as a whole, here called `tc`:
 
 ```
-tc        # traffic controller, configured as main component
 in        # intersection
 sg/1      # signal group
 sg/1      # signal group
 ```
+
 Since there's only one intersection, it's not necessary to nest signal group components under the intersection, although you could.
 
-A traffic light controller managing multiple intersections also has one traffic controller component, representing the device as a whole.
-But it has several intersection components, under which signal groups can be nested:
+A traffic light controller managing multiple intersections has several intersection components, under which signal groups can be nested:
 
 ```
-tc         # traffic controller, configured as main component
 in/1       # intersection
 in/1/sg/1  # signal group
 in/1/sg/2  # signal group

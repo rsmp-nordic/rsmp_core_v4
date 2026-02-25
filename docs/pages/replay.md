@@ -45,6 +45,9 @@ On reconnect, the node:
 2. Resumes all configured channels immediately — live data flows on normal status topics.
 3. Begins replaying buffered data on replay topics in parallel, rate-limited to
    avoid starving live channels.
+4. After all buffered data for a channel has been sent, publishes a final replay
+   message with `done: true`. If there is no buffered data to replay, publishes
+   `{"done": true}` immediately.
 
 ```
 45fe/presence                          →  online
@@ -52,12 +55,16 @@ On reconnect, the node:
 45fe/replay/tlc.groups/hourly          →  (buffered t=08:00, seq=101)
 45fe/replay/tlc.groups/hourly          →  (buffered t=09:00, seq=102)
 45fe/status/tlc.groups/live            →  (live — seq=152, interleaved)
-45fe/replay/tlc.groups/hourly          →  (buffered t=10:00, seq=103, complete=true)
+45fe/replay/tlc.groups/hourly          →  (buffered t=10:00, seq=103, done=true)
 ```
 
 The live channel and the replay share the same sequence counter. A consumer
 that was online before the outage knows the last live `seq` it received
 (e.g. 100) and can immediately see where replay fits.
+
+The `done: true` message signals that the node has finished replaying all
+buffered data for that channel. Supervisors SHOULD wait for `done: true` before
+deciding whether to send a [Fetch](fetch.md) request to fill any remaining gaps.
 
 ## Scope
 
@@ -73,22 +80,8 @@ generally do not require complete live history.
 Replay messages use the same attribute schema as the channel's normal status
 messages, with additional metadata fields.
 
-### Unbatched Replay Payload
-
-```json
-{
-  "ts":       "2026-02-19T08:15:00Z",
-  "next_ts":  "2026-02-19T08:15:03Z",
-  "values":   { ... },
-  "seq":      2,
-  "complete": false
-}
-```
-
-### Batched Replay Payload
-
-A node MAY send multiple buffered events in a single MQTT message using an
-`entries` array, reducing network overhead during large replays:
+Each MQTT message carries an `entries` array containing zero or more events.
+The array MUST always be present; it MAY be empty.
 
 ```json
 {
@@ -106,24 +99,48 @@ A node MAY send multiple buffered events in a single MQTT message using an
       "seq":     102
     }
   ],
-  "complete": false
+  "done": true
 }
+```
+
+Final message with a single entry:
+
+```json
+{
+  "entries": [
+    {
+      "ts":      "2026-02-19T08:15:06Z",
+      "next_ts": null,
+      "values":  { ... },
+      "seq":     3
+    }
+  ],
+  "done": true
+}
+```
+
+### Empty Replay Payload
+
+When there is no buffered data to replay for a channel, the node MUST still
+publish a single message to signal completion:
+
+```json
+{"entries": [], "done": true}
 ```
 
 ### Fields
 
 | Field | Type | Description |
 |---|---|---|
+| `entries` | array | Array of event objects. MUST be present; MAY be empty. Each entry contains `ts`, `next_ts`, `values`, and `seq`. |
 | `ts` | ISO 8601 timestamp | Original recording time on the device |
 | `next_ts` | ISO 8601 timestamp or null | Timestamp of the next event in the buffer. `null` on the last entry when no subsequent event exists yet. |
 | `values` | object | Status attributes, identical in schema to live channel output |
 | `seq` | integer | Original sequence number from the status channel — continuous with live messages |
-| `complete` | boolean | `true` on the final message in the replay batch |
+| `done` | boolean | `true` on the final message in the replay sequence. Omitted on non-final messages. The supervisor MUST wait for this before deciding whether to fetch missing data. |
 | `beginning` | boolean | `true` on the first message if the first entry sent is the oldest entry in the node's buffer — there is no earlier data (optional, included only when true) |
-| `entries` | array | Optional. Array of event objects, each containing `ts`, `next_ts`, `values`, and `seq` |
 
-When `entries` is present, `complete` and `beginning` apply to the message as
-a whole, not to individual entries.
+`done` and `beginning` apply to the message as a whole, not to individual entries.
 
 Consumers MUST use `ts` to position replay messages in the correct place in
 the time series, not the MQTT message arrival time.
@@ -133,7 +150,7 @@ Consumers MAY detect dropped replay messages by checking for gaps in `seq`.
 ## Interrupted Replay
 
 If a node goes offline again during replay, the replay is abandoned without
-sending `complete: true`. On the next reconnect the node resumes replay from
+sending `done: true`. On the next reconnect the node resumes replay from
 where it left off — it MUST NOT re-send messages it has already replayed.
 Sequence numbers continue forward uninterrupted.
 

@@ -19,24 +19,21 @@ Examples:
 45fe/throttle/traffic.volume/5s    # start/stop 5s traffic channel
 ```
 
-For single-channel statuses, `default` can be used as channel name:
+For single-channel statuses, the channel name can be omitted:
 
 ```
-45fe/throttle/tlc.plan/default
+45fe/throttle/tlc.plan
 ```
 
-Payload (CBOR encoded JSON):
+Payload:
 
 ```json
-{"action": "start" | "stop", "timeout": <seconds>}
+{"action": "start" | "stop"}
 ```
 
 Rules:
 - The payload MUST include the key `action`.
 - `action` MUST be one of: `start`, `stop`.
-- `timeout` is optional and MUST only be used with `action: "start"`.
-- `timeout` specifies the number of seconds after which the channel stops automatically.
-- If `timeout` is omitted, the channel runs until explicitly stopped.
 
 ## MQTT Behavior
 - QoS: `1`

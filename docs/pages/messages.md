@@ -27,25 +27,18 @@ RSMP 4 defines the following messages with coresponding topic paths structures:
 Most topic paths (except presence and channel state) follow this layout:
 
 ```
-<node>/<type>/<code>[/<component>]
+<node>/<type>/<code>[/<part>]
 ```
 
-- node: The unique identity of the RSMP node, including optional hierarchy prefix.
+- node: The unique identity of the RSMP node.
 - type: the type of message, e.g. status, command, alarm.
-- code: the code of command/status/alarm within the module (flattened).
-- component: indentifies one or more [components](components.md).
+- code: the code of command/status/alarm within the module.
+- part: indentifies one or more [components](components.md) (or in the case of a channel message a [channel](channels.md))
 
-The component is kept at the end of the topic path to ensure that you can retain status, commands and alarms for each component and easily subscribe to sub-trees.
+The part is kept at the end of the topic path to ensure that you can retain status, commands and alarms for individual component.
 
-The component can be left out as a shortcut to refer to the main component.
+The component can be left out as a shortcut to refer to the entire node.
 
-Channel state uses a dedicated layout:
-
-```
-<node>/channel/<code>/<channel>
-```
-
-This topic is used to publish channel lifecycle/state changes (e.g. running/stopped), while status data itself is published under status topics.
 
 ## Payload CBOR Encoding
 Message payloads consist of JSON encoded in binary format using [CBOR (Concise Binary Object Representation)](https://cbor.io).

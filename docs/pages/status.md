@@ -240,7 +240,6 @@ Aggregated messages are published with MQTT `retain = true`. New consumers will 
 
 Aggregation windows MUST be aligned to clock boundaries (e.g. every 15 minutes on the quarter-hour). A node MUST NOT start publishing an aggregation channel mid-window — it MUST wait until the next window boundary.
 
-
 ## Default State
 A channel configured as off by default MUST be started via a [Throttle](throttle.md)
 message before it publishes data. A channel configured as on by default starts
@@ -250,6 +249,3 @@ High-frequency channels (e.g. live signal groups) should typically default to
 off. Low-frequency channels (e.g. current plan, control mode) typically default
 to on, but this is not required — a status may have all its channels default to
 off if the data should only flow on demand.
-
-## MQTT 5 Features
-- **Topic Aliases**: reduce per-message overhead for high-frequency topics.
