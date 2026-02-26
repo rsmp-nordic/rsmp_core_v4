@@ -11,13 +11,13 @@ it collected while disconnected. Replay data is published to dedicated replay
 topics, separate from live status topics.
 
 ```
-<node>/replay/<code>/<channel>[/<component>]
+<node>/replay/<code>/<channel>
 ```
 
 Examples:
 ```
 45fe/replay/tlc.groups/hourly           # replay of hourly signal group data
-45fe/replay/traffic.count/hourly/dl/1  # replay of hourly traffic data for detector logic 1
+45fe/replay/traffic.count/hourly        # replay of hourly traffic data
 ```
 
 ## Purpose
