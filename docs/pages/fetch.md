@@ -11,7 +11,7 @@ range from a node. The node responds with [History](history.md) messages
 published directly to the requesting supervisor.
 
 ```
-<node>/fetch/<code>/<channel>[/<component>]
+<node>/fetch/<code>/<channel>
 ```
 
 If the channel name is omitted in the corresponding status topic, it MUST also be omitted here:
@@ -24,7 +24,7 @@ Examples:
 ```
 45fe/fetch/tlc.groups/hourly              # fetch hourly signal group data from node 45fe
 45fe/fetch/tlc.plan                       # fetch current plan (single channel, name omitted)
-45fe/fetch/traffic.count/hourly/dl/1      # fetch hourly traffic data for detector logic 1
+45fe/fetch/traffic.count/hourly           # fetch hourly traffic data
 ```
 
 ## Purpose
@@ -39,8 +39,8 @@ the requesting supervisor only.
 
 Fetch uses MQTT 5 Request/Response:
 
-- The supervisor MUST set the **Response Topic** to `<supervisor>/history/<code>/<channel>[/<component>]`,
-  where `code`, `channel`, and `component` match those in the fetch topic path.
+- The supervisor MUST set the **Response Topic** to `<supervisor>/history/<code>/<channel>`,
+  where `code` and `channel` match those in the fetch topic path.
 - The supervisor MUST set **Correlation Data** to a unique identifier for the
   request. The node MUST echo this value in every history message it publishes
   in response.
@@ -51,7 +51,7 @@ Fetch uses MQTT 5 Request/Response:
 |---|---|
 | QoS | `1` |
 | Retain | `false` |
-| Response Topic | `<supervisor>/history/<code>/<channel>[/<component>]` |
+| Response Topic | `<supervisor>/history/<code>/<channel>` |
 | Correlation Data | Set by supervisor |
 
 ## Payload

@@ -5,20 +5,20 @@ nav_order: 5
 ---
 
 # Components
-A node has one or more components, representing physical of logical parts of the node.
+A node has one or more components, representing physical or logical parts of
+the node.
 
-Components are referenced using component ids, which must be unique per node.
+Components are referenced using component ids, which MUST be unique per node.
 
-A component id consists of one or more levels, separated by slashes. For example, a traffic light controller (tc) with two signal groups (sg) and four detector logics (dl) might have these component ids:
+A component id consists of one or more levels, separated by slashes. For
+example, a traffic light controller with two signal groups (sg) and four
+detector logics (dl) might have these component ids:
 
 ```
-tc
 sg/1
 sg/2
-dl/video
 dl/video/1
 dl/video/2
-dl/radar
 dl/radar/1
 dl/radar/2
 dl/radar/3
@@ -27,23 +27,72 @@ dl/radar/4
 
 Whitespace and non-printable characters are not allowed in component ids.
 
-Unlike RSMP 3, RSMP 4 component ids does not include the node id. RMSP 3 components which include site ids, like `KK+AG0503=001DL001`, should be convert to RMSP 4 component ids, in this case `dl/1`.
+Unlike RSMP 3, RSMP 4 component ids do not include the node id. RSMP 3
+components which include site ids, like `KK+AG0503=001DL001`, should be
+converted to RSMP 4 component ids, in this case `dl/1`.
 
 ## Component Types
-Each component has a specific component type, like signal group or detector logic.
+Each component has a specific component type, like signal group or detector
+logic.
 
-Modules typically work with specific component types. For example, the traffic light controller module  work with signal groups and detector logic.
+Modules typically work with specific component types. For example, the traffic
+light controller module works with signal groups and detector logic.
 
-A module can define messages that work with arbitrary component types. For example, a generic `system` module might work with components of any type to ftch the name and configuration of any component or to list components.
+A module can define messages that work with arbitrary component types. For
+example, a generic `system` module might work with components of any type to
+fetch the name and configuration of any component or to list components.
+
+## Components in Payloads
+Components are **not** part of the MQTT topic path. When a message relates to
+specific components, the component is identified in the message payload.
+
+This keeps the topic structure simple and unambiguous:
+
+```
+<node>/status/<code>[/<channel>]
+<node>/alarm/<code>
+<node>/command/<code>
+```
+
+The component appears in the payload where needed. For example, a status
+payload for signal groups includes per-component data in `values`:
+
+```json
+{
+  "entries": [
+    {
+      "ts": "2026-02-24T10:00:00.000Z",
+      "values": {
+        "signalgroupstatus": {"sg/1": "G", "sg/2": "r"},
+        "cyclecounter": 42
+      },
+      "seq": 123
+    }
+  ]
+}
+```
+
+A command targeting a specific component includes it in the payload:
+
+```json
+{
+  "component": "dl/radar/1",
+  "values": {"action": "reset"}
+}
+```
+
+This design means that one MQTT message can carry data for multiple components
+atomically, and periodic full updates serve as retained snapshots for new
+subscribers.
 
 ## Component Groups
-You can address groups of component using intermediate levels. For example:
+You can address groups of components using intermediate levels. For example:
 
 ```
 sg        # All signal groups
 dl        # All detector logics (both video and radar)
 dl/video  # All video detectors
-dl/rader  # All radar detectors
+dl/radar  # All radar detectors
 ```
 
 Lists of specific components can be addressed with a comma-separated list:
@@ -56,58 +105,42 @@ You can also list groups:
 
 ```
 sg,dl       # All signal groups and all detector logics
-sg,dl/1     # The first signal groups and the first detector logic
 ```
 
 Hyphen can be used for ranges of components:
 
 ```
-dl/radar/2-4      # Radar detector from to 2 to 4, ie. 2, 3 and 4
+dl/radar/2-4      # Radar detectors 2, 3 and 4
 ```
 
-You can combine commas and hyphens
+You can combine commas and hyphens:
+
 ```
 dl/radar/2-6,15-19,25
 ```
 
 Whitespace is not allowed before or after commas and hyphens.
 
-## Component ids and Topic Paths
-Component ids are used in topic paths, for example:
+Component groups and lists are useful in command payloads when addressing
+multiple components at once.
 
-```
-45fe/alarm/tlc.301/dl/6         # A0301 error for component dl.6 on node 45fe
-45fe/command/sensor.17/sg/1     # Command M0017 to signal group 1 on node 45fe
-```
-
-RSMP 4 is based on MQTT which allow the last payload published to each topic path to be retained.
-In the example above, this means that the alarms for `dl/6` and `dl/7` will be retained.
-A node subscribing to these topics, or reconnecting after a network dropout, will then receive the latest alarm for each component.
-This is useful to make sure that a newly connected node will receive the latest status immediately.
-
-To ensure that the latest status for each component can be retained, groups or lists or components should not be used when sending alarms or statuses. Instead a status/alarm should be published for each component, using their individual component paths.
-
-On the other hand, commands can use component groups or lists, because commands should not be retained. Instead QoS (Quality of Service) 1 or 2 should be used when sending commands to guarantee delivery. If the receiver is offline, the messages will be kept on the broker. When the receiver comes online again, they will be delivered. Since commands are not retained, newly connected nodes will not received previously send commands.
-
-## Main component
-You can refer to the node as a whole by omitting the component ID from the topic path:
-
-```
-45fe/command/tlc.plan.set      # change signal plan, this applies to the node, not a component
-```
+## Main Component
+When a message applies to the node as a whole rather than a specific
+component, the `component` field is omitted from the payload.
 
 ## Example: Traffic Light Controller
-A traffic light controller managing a single intersection has a traffic controller component, representing the device as a whole, here called `tc`:
+A traffic light controller managing a single intersection might have:
 
 ```
-in        # intersection
 sg/1      # signal group
-sg/1      # signal group
+sg/2      # signal group
 ```
 
-Since there's only one intersection, it's not necessary to nest signal group components under the intersection, although you could.
+Since there is only one intersection, it is not necessary to nest signal group
+components under an intersection, although you could.
 
-A traffic light controller managing multiple intersections has several intersection components, under which signal groups can be nested:
+A traffic light controller managing multiple intersections has several
+intersection components, under which signal groups can be nested:
 
 ```
 in/1       # intersection
@@ -118,6 +151,7 @@ in/2/sg/1  # signal group
 in/2/sg/2  # signal group
 ```
 
-With nesting, component ids for signal groups are slightly longer (e.g. `in/1/sg/1` vs `sg/1`), but on the other hand it's easy to see which intersection a signal group belongs to, you can reuse the same signal group names in several intersections and you have the possibility to easily address all signal groups in an intersection (e.g. `in/1/sg`).
-
-
+With nesting, component ids for signal groups are slightly longer
+(e.g. `in/1/sg/1` vs `sg/1`), but it is easy to see which intersection a
+signal group belongs to, you can reuse signal group names across intersections,
+and you can address all signal groups in an intersection (e.g. `in/1/sg`).

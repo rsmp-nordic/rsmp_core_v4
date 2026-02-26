@@ -9,11 +9,11 @@ permalink: /messages/result/
 A command result is published after handling a command.
 
 ```
-<node>/result/<code>[/<component>]
+<node>/result/<code>
 ```
 
 Examples:
 ```
 45fe/result/tlc.plan.set
-45fe/result/sensor.reset/dl/3
+45fe/result/sensor.reset
 ```

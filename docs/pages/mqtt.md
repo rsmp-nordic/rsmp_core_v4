@@ -27,7 +27,7 @@ MQTT uses topic paths as a fundemental concept. A topic path is string using for
 
 RSMP 4 uses a **Device-Centric** topic layout:
 
-`<../../node>/type/code[/<component>]`
+`<node>/type/code`
 
 ### Sections
 
@@ -36,7 +36,10 @@ RSMP 4 uses a **Device-Centric** topic layout:
 | **Node ID** | Unique Device Identifier including optional hierarchy prefix. | [../../]node | `tlc-001` |
 | **Type** | Protocol Keyword / Parsing Anchor. | Fixed Enum | `command`, `status`, `alarm`, `presence` |
 | **Code** | Message Code (from SXL). Flattened to avoid ambiguity. | Dotted String | `tlc.plan.set` (derived from `tlc/plan/set`) |
-| **Component** | Logic resource path. | Slashed String | `sg/1` |
+
+Components are not part of the topic path. When a message relates to a
+specific component, the component is included in the payload. See
+[Components](components.md) for details.
 
 The node id can consist of 1 or more levels, e.g. `af5g`, `zone1/tlc-001` or `dk/cph/tlc-001`. Using the same number of levels for all devices in a setup is recommended, but not required. 
 

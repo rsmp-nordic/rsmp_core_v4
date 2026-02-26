@@ -11,7 +11,7 @@ request. They are routed to the requesting supervisor via the
 Response Topic set in the fetch message.
 
 ```
-<supervisor>/history/<code>/<channel>[/<component>]
+<supervisor>/history/<code>/<channel>
 ```
 
 If only one channel is defined for the code, the channel name can be omitted:
@@ -22,14 +22,14 @@ If only one channel is defined for the code, the channel name can be omitted:
 
 Examples:
 ```
-22ba/history/tlc.groups/hourly              # history for signal groups, he hourly channel
+22ba/history/tlc.groups/hourly              # history for signal groups, the hourly channel
 22ba/history/tlc.plan                       # history for current plan (default channel)
-22ba/history/traffic.count/hourly/dl/1      # history for traffic counts hourly channel, on component dl/1
+22ba/history/traffic.count/hourly           # history for traffic counts hourly channel
 ```
 
 The topic path is set by the supervisor as the Response Topic in the fetch
-request. The supervisor MUST use this exact format, matching the `code`,
-`channel`, and `component` from the fetch. The node publishes to the Response
+request. The supervisor MUST use this exact format, matching the `code` and
+`channel` from the fetch. The node publishes to the Response
 Topic verbatim without validation.
 
 ## MQTT Properties

@@ -44,11 +44,10 @@ Multiple consumers benefit from the same published data without additional load 
 ## Topic Path
 
 ```
-<node>/status/<code>/<channel>[/<component>]
+<node>/status/<code>/<channel>
 ```
 
-When a status has only a single channel and no component segments, the channel
-name may be omitted:
+When a status has only a single channel, the channel name may be omitted:
 
 ```
 <node>/status/<code>
@@ -56,21 +55,12 @@ name may be omitted:
 
 When the channel name is omitted in the status topic, it MUST also be omitted in the corresponding `channel`, `fetch`, and `history` topics.
 
-The channel name **cannot** be omitted when component segments are present,
-because the first segment after the code is always parsed as the channel name.
-This ensures unambiguous topic parsing without requiring schema knowledge.
-
 Examples:
 ```
 45fe/status/tlc.groups/live            # live channel of signal group status
 45fe/status/tlc.groups/hourly          # hourly aggregated signal group status
 45fe/status/tlc.plan                   # current plan (single channel, name omitted)
-45fe/status/traffic.count/hourly/dl/1  # hourly traffic data for detector logic 1
-```
-
-Invalid:
-```
-45fe/status/traffic.count/dl/1         # WRONG — "dl" would be parsed as channel name
+45fe/status/traffic.count/hourly       # hourly traffic data
 ```
 
 Subscription patterns:

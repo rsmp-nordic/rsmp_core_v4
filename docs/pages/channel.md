@@ -6,20 +6,18 @@ permalink: /messages/channel/
 ---
 
 # Channel
-Channel messages   
-They do not carry status data values.
+Channel messages publish channel state updates, ie. when a channel turns on or off.
 
 ```
 <node>/channel/<code>/<channel>
 ```
 
-If the channel name is omitted in the corresponding status topic, it MUST also be omitted here:
+If only one channel is configured fo the code, the channel name can be omitted:
 
 ```
 <node>/channel/<code>
 ```
 
-Channel state applies to the entire channel across all components. Therefore, the `[/<component>]` segment is never present in the channel topic path.
 
 Examples:
 ```
@@ -28,16 +26,12 @@ Examples:
 45fe/channel/tlc.plan             # state for current plan (single channel, name omitted)
 ```
 
-Payload (CBOR, represented here as JSON) is explicitly defined as:
+Payload:
 
 ```json
 {"state": "running" | "stopped"}
 ```
 
-Rules:
-- The payload MUST include exactly one key: `state`.
-- `state` MUST be one of: `running`, `stopped`.
-- No additional payload keys are currently defined for this topic.
 
 ## MQTT Behavior
 - QoS: `1`
